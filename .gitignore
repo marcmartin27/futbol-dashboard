@@ -1,0 +1,37 @@
+# Archivo .gitignore para proyecto Futbol Dashboard
+
+# Entorno virtual de Python
+env/
+venv/
+*.pyc
+__pycache__/
+
+# Node.js / React
+node_modules/
+/frontend/build/
+/frontend/coverage/
+.npm
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Base de datos
+db.sqlite3
+
+# Archivos IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
