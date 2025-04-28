@@ -1,0 +1,9 @@
+// main.scss - El archivo que importa todos los demás
+
+@import 'variables';
+@import 'globals';
+@import 'components';
+@import 'auth';
+@import 'dashboard';
+@import 'teams';
+@import 'coaches';

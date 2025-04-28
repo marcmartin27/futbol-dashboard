@@ -1,0 +1,44 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Roboto', 'Segoe UI', sans-serif;
+    color: var(--text-color);
+    background-color: var(--background-light);
+  }
+  
+  // Mensajes de error y éxito
+  .error-message {
+    background-color: #ffebee;
+    color: var(--danger-color);
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .error-message::before {
+    content: "⚠️";
+    margin-right: 8px;
+  }
+  
+  .success-message {
+    background-color: #e8f5e9;
+    color: var(--success-color);
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .success-message::before {
+    content: "✅";
+    margin-right: 8px;
+  }

@@ -1,0 +1,110 @@
+/* Todo lo relacionado con login y register */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%);
+    padding: 20px;
+  }
+  
+  .auth-form-container {
+    width: 420px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+  
+  .auth-header {
+    background-color: var(--primary-color);
+    padding: 25px 0;
+    text-align: center;
+    color: white;
+    border-radius: 12px 12px 0 0;
+  }
+  
+  .auth-header h1 {
+    margin: 0;
+    font-weight: 500;
+    font-size: 24px;
+  }
+  
+  .auth-header .logo {
+    margin-bottom: 10px;
+  }
+  
+  .auth-body {
+    padding: 30px;
+  }
+  
+  .auth-form .form-group {
+    margin-bottom: 24px;
+  }
+  
+  .auth-form label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #555;
+  }
+  
+  .auth-form input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 16px;
+    transition: all 0.3s;
+  }
+  
+  .auth-form input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
+    outline: none;
+  }
+  
+  .auth-button {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+  }
+  
+  .auth-button:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  .auth-button:disabled {
+    background-color: #b0b0b0;
+    cursor: not-allowed;
+  }
+  
+  .auth-link {
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+    color: #666;
+  }
+  
+  .auth-link a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+  
+  .auth-link a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+  }

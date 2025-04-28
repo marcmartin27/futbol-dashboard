@@ -4,7 +4,7 @@ import { setAuth, getAuth, isAuthenticated, authHeader, logout } from './service
 import { getUser } from './services/userService';
 
 
-import './App.scss';
+import './styles/main.scss';
 
 
 // Reemplaza la función Login actual con esta versión mejorada
