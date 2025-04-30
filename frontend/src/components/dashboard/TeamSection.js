@@ -1,8 +1,15 @@
 // src/components/dashboard/TeamSection.js
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/main.scss';
 
 function TeamSection({ teams, form, loading, error, handleChange, handleSubmit, getInitials }) {
+  const navigate = useNavigate();
+  
+  const handleViewTeam = (teamId) => {
+    navigate(`/team/${teamId}`);
+  };
+  
   return (
     <div className="content-wrapper">
       {error && <div className="error-message">{error}</div>}
@@ -83,6 +90,14 @@ function TeamSection({ teams, form, loading, error, handleChange, handleSubmit, 
                     </div>
                   </div>
                   <div className="team-actions">
+                    <button 
+                      className="btn btn-primary btn-sm"
+                      onClick={() => handleViewTeam(team.id || team._id)}
+                      title="Ver plantilla"
+                    >
+                      <i className="fas fa-users btn-icon"></i>
+                      Plantilla
+                    </button>
                     <button className="btn btn-icon-only" title="Editar equipo">
                       <i className="fas fa-edit"></i>
                     </button>

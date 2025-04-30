@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Team
-from .serializers import TeamSerializer
+from .models import Team, Player
+from .serializers import TeamSerializer, PlayerSerializer
 from rest_framework.permissions import IsAuthenticated
 import traceback
 
@@ -80,3 +80,109 @@ class TeamTestView(APIView):
         except Exception as e:
             print(f"Error en test view: {str(e)}")
             return Response({"error": str(e)}, status=500)
+        
+class TeamDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, id):
+        try:
+            team = Team.objects.get(id=id)
+            serializer = TeamSerializer(team)
+            return Response(serializer.data)
+        except Team.DoesNotExist:
+            return Response({"error": "Equipo no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class PlayerListView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, team_id=None):
+        try:
+            if team_id:
+                team = Team.objects.get(id=team_id)
+                players = Player.objects(team=team).order_by('position', 'number')
+            else:
+                players = Player.objects.all().order_by('position', 'number')
+                
+            serializer = PlayerSerializer(players, many=True)
+            return Response(serializer.data)
+        except Team.DoesNotExist:
+            return Response({"error": "Equipo no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class PlayerCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, team_id):
+        try:
+            team = Team.objects.get(id=team_id)
+            
+            # Añadir el team_id al request.data
+            data = request.data.copy()
+            data['team'] = str(team.id)
+            
+            serializer = PlayerSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Team.DoesNotExist:
+            return Response({"error": "Equipo no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class PlayerDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, id):
+        try:
+            player = Player.objects.get(id=id)
+            serializer = PlayerSerializer(player)
+            return Response(serializer.data)
+        except Player.DoesNotExist:
+            return Response({"error": "Jugador no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def put(self, request, id):
+        try:
+            player = Player.objects.get(id=id)
+            serializer = PlayerSerializer(player, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Player.DoesNotExist:
+            return Response({"error": "Jugador no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def delete(self, request, id):
+        try:
+            player = Player.objects.get(id=id)
+            player.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Player.DoesNotExist:
+            return Response({"error": "Jugador no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
