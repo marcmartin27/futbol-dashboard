@@ -53,7 +53,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
             onClick={() => setActivePage('players')}
           >
             <span className="nav-icon"><i className="fas fa-users"></i></span>
-            <span className="nav-text">Jugadores</span>
+            <span className="nav-text">Gestión de Usuarios</span>
           </a>
         </li>
         <li className="nav-item">
