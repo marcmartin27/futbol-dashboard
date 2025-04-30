@@ -49,8 +49,8 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
         <li className="nav-item">
           <a 
             href="#" 
-            className={`nav-link ${activePage === 'players' ? 'active' : ''}`}
-            onClick={() => setActivePage('players')}
+            className={`nav-link ${activePage === 'users' ? 'active' : ''}`}
+            onClick={() => setActivePage('users')}
           >
             <span className="nav-icon"><i className="fas fa-users"></i></span>
             <span className="nav-text">Gestión de Usuarios</span>
