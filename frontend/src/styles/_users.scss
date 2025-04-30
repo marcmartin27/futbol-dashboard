@@ -1,0 +1,52 @@
+/* Estilos para el formulario de creación de usuario */
+.user-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+    /* Puedes ajustar los inputs para que tengan un ancho similar a los de equipos */
+    input {
+      flex: 1 1 250px; // Cada input ocupará un mínimo de 250px y se expandirá si hay espacio.
+    }
+  }
+  
+/* Estilos para la lista de usuarios */
+.user-list {
+list-style: none;
+padding: 0;
+margin: 0;
+display: flex;
+flex-direction: column;
+gap: 16px;
+}
+
+.user-item {
+padding: 16px;
+background-color: var(--background-light);
+border-radius: 6px;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+display: flex;
+align-items: center;
+justify-content: space-between;
+
+/* Para usar mayor espacio horizontal */
+width: 100%;
+}
+
+.user-info {
+display: flex;
+flex-direction: column;
+flex: 1;  
+}
+
+.user-name {
+font-weight: 700;
+font-size: 17px;
+margin-bottom: 5px;
+}
+
+.user-email,
+.user-role {
+font-size: 14px;
+color: #555;
+}

@@ -26,6 +26,12 @@ function Dashboard() {
     loadTeams();
   }, []);
 
+  useEffect(() => {
+    if (activePage === 'users') {
+      loadUsers();
+    }
+  }, [activePage]);
+
   const loadTeams = async () => {
     try {
       setLoading(true);
