@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { authHeader } from '../../services/auth';
 import Sidebar from './Sidebar';
 import TeamSection from './TeamSection';
+import UsersSection from './UsersSection';
 import '../../styles/main.scss';
 
 function Dashboard() {
@@ -13,6 +14,7 @@ function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activePage, setActivePage] = useState('teams');
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     // Cargar los datos del usuario
@@ -135,10 +137,14 @@ function Dashboard() {
         )}
         
         {activePage === 'players' && (
-          <div className="content-wrapper">
-            <h2>Gestión de Jugadores</h2>
-            <p>Esta sección está en desarrollo</p>
-          </div>
+          <UsersSection 
+            users={users}
+            form={form}
+            loading={loading}
+            error={error}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+          />
         )}
       </div>
     </div>
