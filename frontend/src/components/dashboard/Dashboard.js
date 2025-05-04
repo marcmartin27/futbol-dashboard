@@ -174,6 +174,7 @@ function Dashboard() {
             handleChange={handleTeamChange}
             handleSubmit={handleTeamSubmit}
             getInitials={getInitials}
+            loadTeams={loadTeams}
           />
         )}
         

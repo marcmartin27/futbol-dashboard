@@ -96,6 +96,43 @@ class TeamDetailView(APIView):
                 {"error": f"Error del servidor: {str(e)}"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+    
+    # Corregir indentación aquí - debe estar al mismo nivel que get
+    def put(self, request, id):
+        try:
+            team = Team.objects.get(id=id)
+            serializer = TeamSerializer(team, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Team.DoesNotExist:
+            return Response({"error": "Equipo no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            error_traceback = traceback.format_exc()
+            print(f"Error en PUT teams/{id}/: {str(e)}")
+            print(error_traceback)
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    # Este método también debe estar al mismo nivel que get y put
+    def delete(self, request, id):
+        try:
+            team = Team.objects.get(id=id)
+            team.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Team.DoesNotExist:
+            return Response({"error": "Equipo no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            error_traceback = traceback.format_exc()
+            print(f"Error en DELETE teams/{id}/: {str(e)}")
+            print(error_traceback)
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class PlayerListView(APIView):
     permission_classes = [IsAuthenticated]

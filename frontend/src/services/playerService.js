@@ -62,3 +62,26 @@ export const deletePlayer = async (playerId) => {
     throw err;
   }
 };
+
+export const updatePlayer = async (playerId, playerData) => {
+  try {
+    const response = await fetch(`${API_URL}/players/${playerId}/`, {
+      method: 'PUT',
+      headers: {
+        ...authHeader(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(playerData)
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (err) {
+    console.error("Error actualizando jugador:", err);
+    throw err;
+  }
+};

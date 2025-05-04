@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework_jwt.settings import api_settings
 import datetime
+from rest_framework.permissions import IsAuthenticated
+
 
 from .models import User
 from .serializers import UserSerializer, UserRegistrationSerializer
@@ -120,6 +122,72 @@ class UserRegisterView(APIView):
         except Exception as e:
             # Log del error para debugging
             print(f"Error en registro: {str(e)}")
+            return Response(
+                {'error': f'Error del servidor: {str(e)}'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class UserListView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        try:
+            users = User.objects.all()
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            print(f"Error listando usuarios: {str(e)}")
+            return Response(
+                {'error': f'Error del servidor: {str(e)}'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def post(self, request):
+        try:
+            # Para creación de usuarios por administradores
+            data = request.data.copy()
+            
+            # Validación básica
+            if not all([data.get('username'), data.get('email')]):
+                return Response(
+                    {'error': 'Nombre de usuario y email son requeridos'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Verificar si el usuario ya existe
+            if User.objects(username=data.get('username')).first():
+                return Response(
+                    {'error': 'El nombre de usuario ya está en uso'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+            if User.objects(email=data.get('email')).first():
+                return Response(
+                    {'error': 'El email ya está registrado'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Si no se proporciona una contraseña, generar una temporal
+            if not data.get('password'):
+                data['password'] = 'changeme123'  # Contraseña temporal
+            
+            # Crear usuario
+            serializer = UserRegistrationSerializer(data=data)
+            if serializer.is_valid():
+                user = serializer.save()
+                # Importante: hashear la contraseña
+                user.set_password(data.get('password'))
+                user.save()
+                
+                return Response({
+                    'message': 'Usuario creado con éxito',
+                    'user': UserSerializer(user).data
+                }, status=status.HTTP_201_CREATED)
+            
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            print(f"Error creando usuario: {str(e)}")
             return Response(
                 {'error': f'Error del servidor: {str(e)}'}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

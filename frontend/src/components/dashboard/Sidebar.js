@@ -9,7 +9,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    window.location.href = '/login';
   };
 
   return (

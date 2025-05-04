@@ -56,3 +56,59 @@ export const createTeam = async (teamData) => {
     throw err;
   }
 };
+
+// Añadir estas funciones al archivo
+
+export const updateTeam = async (teamId, teamData) => {
+  try {
+    const response = await fetch(`${API_URL}/${teamId}/`, {
+      method: 'PUT',
+      headers: {
+        ...authHeader(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(teamData)
+    });
+    
+    if (!response.ok) {
+      const clonedResponse = response.clone();
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
+      } catch (jsonError) {
+        const textError = await clonedResponse.text();
+        throw new Error(`Error ${response.status}: ${textError.substring(0, 100)}...`);
+      }
+    }
+    
+    return await response.json();
+  } catch (err) {
+    console.error("Error actualizando equipo:", err);
+    throw err;
+  }
+};
+
+export const deleteTeam = async (teamId) => {
+  try {
+    const response = await fetch(`${API_URL}/${teamId}/`, {
+      method: 'DELETE',
+      headers: authHeader()
+    });
+    
+    if (!response.ok) {
+      const clonedResponse = response.clone();
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
+      } catch (jsonError) {
+        const textError = await clonedResponse.text();
+        throw new Error(`Error ${response.status}: ${textError.substring(0, 100)}...`);
+      }
+    }
+    
+    return true;
+  } catch (err) {
+    console.error("Error eliminando equipo:", err);
+    throw err;
+  }
+};

@@ -21,7 +21,7 @@ function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
+  
     try {
       const response = await fetch('http://localhost:8000/api/users/login/', {
         method: 'POST',
@@ -30,15 +30,17 @@ function Login() {
         },
         body: JSON.stringify(credentials)
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Error en la autenticación');
       }
-
+  
       const data = await response.json();
       setAuth(data);
-      navigate('/dashboard');
+      
+      // Usar window.location en lugar de navigate
+      window.location.href = '/dashboard';
     } catch (error) {
       setError(error.message);
       console.error('Error de login:', error);
