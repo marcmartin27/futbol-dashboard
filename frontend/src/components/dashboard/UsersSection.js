@@ -1,7 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { authHeader } from '../../services/auth';
 import '../../styles/main.scss';
 
 function UsersSection({ users, form, loading, error, handleChange, handleSubmit }) {
+  const [teams, setTeams] = useState([]);
+  
+  useEffect(() => {
+    loadTeams();
+  }, []);
+  
+  const loadTeams = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/teams/', {
+        headers: authHeader()
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setTeams(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error cargando equipos:", err);
+    }
+  };
+  
   return (
     <div className="content-wrapper">
       {error && <div className="error-message">{error}</div>}
@@ -32,19 +56,42 @@ function UsersSection({ users, form, loading, error, handleChange, handleSubmit 
               />
             </div>
             <div className="form-control">
-              <input 
+              <select 
                 name="role" 
                 value={form.role || ''} 
                 onChange={handleChange} 
-                placeholder="Rol del usuario" 
-              />
+                required
+              >
+                <option value="">Seleccionar rol</option>
+                <option value="admin">Administrador</option>
+                <option value="coach">Entrenador</option>
+                <option value="user">Usuario</option>
+              </select>
             </div>
+            
+            {form.role === 'coach' && (
+              <div className="form-control">
+                <select 
+                  name="team" 
+                  value={form.team || ''} 
+                  onChange={handleChange} 
+                  required={form.role === 'coach'}
+                >
+                  <option value="">Seleccionar equipo</option>
+                  {teams.map(team => (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            
             <button 
               type="submit" 
               className="btn btn-primary"
               disabled={loading}
             >
-              <i className="fas fa-plus btn-icon"></i>
               {loading ? 'Creando...' : 'Crear Usuario'}
             </button>
           </form>

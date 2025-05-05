@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, EmailField, DateTimeField, BooleanField
+from mongoengine import Document, StringField, EmailField, DateTimeField, BooleanField, ReferenceField
 from django.contrib.auth.hashers import make_password, check_password
 import datetime
 
@@ -8,21 +8,21 @@ class User(Document):
     password = StringField(required=True)
     first_name = StringField(max_length=30)
     last_name = StringField(max_length=30)
+    role = StringField(default='user', choices=['admin', 'coach', 'user'])  # Nuevo campo para rol
+    team = ReferenceField('teams.Team', null=True)  # Referencia al equipo para entrenadores
     is_active = BooleanField(default=True)
     date_joined = DateTimeField(default=datetime.datetime.now)
     last_login = DateTimeField(default=datetime.datetime.now)
     
     meta = {'collection': 'users'}
     
-    # Añadir estas propiedades para compatibilidad con Django auth
+    # Propiedades para compatibilidad con Django auth
     @property
     def is_authenticated(self):
-        """Siempre retorna True para los usuarios autenticados"""
         return True
         
     @property
     def is_anonymous(self):
-        """Siempre retorna False para los usuarios reales"""
         return False
     
     def set_password(self, raw_password):

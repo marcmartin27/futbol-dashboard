@@ -4,6 +4,7 @@ from rest_framework import status
 from .models import Team, Player
 from .serializers import TeamSerializer, PlayerSerializer
 from rest_framework.permissions import IsAuthenticated
+from .permissions import IsCoachOfTeamOrAdmin
 import traceback
 
 class TeamListView(APIView):
@@ -11,12 +12,12 @@ class TeamListView(APIView):
     
     def get(self, request):
         try:
-            # Debugging para autenticación
-            print("Usuario autenticado:", request.user)
-            print("Token JWT:", request.auth)
-            
-            # Usar objects para mongoengine
-            teams = Team.objects.all()
+            # Filtrar equipos según el rol del usuario
+            if request.user.role == 'coach' and request.user.team:
+                teams = [request.user.team]
+            else:
+                teams = Team.objects.all()
+                
             serializer = TeamSerializer(teams, many=True)
             return Response(serializer.data)
         except Exception as e:
@@ -57,7 +58,7 @@ class TeamCreateView(APIView):
 # Añade esta nueva clase al final del archivo actual
 
 class TeamTestView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsCoachOfTeamOrAdmin]
     
     def get(self, request):
         try:
@@ -82,7 +83,7 @@ class TeamTestView(APIView):
             return Response({"error": str(e)}, status=500)
         
 class TeamDetailView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsCoachOfTeamOrAdmin]
     
     def get(self, request, id):
         try:
@@ -135,7 +136,7 @@ class TeamDetailView(APIView):
             )
 
 class PlayerListView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsCoachOfTeamOrAdmin]
     
     def get(self, request, team_id=None):
         try:
@@ -156,7 +157,7 @@ class PlayerListView(APIView):
             )
 
 class PlayerCreateView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsCoachOfTeamOrAdmin]
     
     def post(self, request, team_id):
         try:
@@ -180,7 +181,7 @@ class PlayerCreateView(APIView):
             )
 
 class PlayerDetailView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsCoachOfTeamOrAdmin]
     
     def get(self, request, id):
         try:

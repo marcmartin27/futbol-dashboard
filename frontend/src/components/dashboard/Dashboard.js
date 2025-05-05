@@ -5,6 +5,8 @@ import Sidebar from './Sidebar';
 import TeamSection from './TeamSection';
 import UsersSection from './UsersSection';
 import '../../styles/main.scss';
+import CoachTeamSection from './CoachTeamSection';
+import TrainingSection from './TrainingSection';
 
 function Dashboard() {
   const [teams, setTeams] = useState([]);
@@ -119,6 +121,14 @@ function Dashboard() {
     setError('');
     try {
       setLoading(true);
+      
+      // Validaciones para el rol de entrenador
+      if (userForm.role === 'coach' && !userForm.team) {
+        setError("Los entrenadores deben tener un equipo asignado");
+        setLoading(false);
+        return;
+      }
+      
       const response = await fetch('http://localhost:8000/api/users/', {
         method: 'POST',
         headers: {
@@ -127,12 +137,14 @@ function Dashboard() {
         },
         body: JSON.stringify(userForm)
       });
+      
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || `Error ${response.status}`);
       }
+      
       // Limpiar el formulario y recargar usuarios
-      setUserForm({ username: '', email: '', role: '' });
+      setUserForm({ username: '', email: '', role: '', team: '' });
       loadUsers();
     } catch (err) {
       setError("Error creando usuario: " + err.message);
@@ -162,39 +174,73 @@ function Dashboard() {
       
       <div className="main-content">
         <div className="top-bar">
-          <h1 className="page-title">Gestión de Equipos</h1>
+          <h1 className="page-title">
+            {user?.role === 'admin' ? 'Panel de Administración' : 'Panel de Entrenador'}
+          </h1>
         </div>
         
-        {activePage === 'teams' && (
-          <TeamSection 
-            teams={teams}
-            form={teamForm}
-            loading={loading}
-            error={error}
-            handleChange={handleTeamChange}
-            handleSubmit={handleTeamSubmit}
-            getInitials={getInitials}
-            loadTeams={loadTeams}
-          />
+        {/* Secciones para administradores */}
+        {user?.role === 'admin' && (
+          <>
+            {activePage === 'dashboard' && (
+              <div className="content-wrapper">
+                <h2>Dashboard Principal</h2>
+                <p>Bienvenido al panel de control de administrador</p>
+              </div>
+            )}
+            
+            {activePage === 'teams' && (
+              <TeamSection 
+                teams={teams}
+                form={teamForm}
+                loading={loading}
+                error={error}
+                handleChange={handleTeamChange}
+                handleSubmit={handleTeamSubmit}
+                getInitials={getInitials}
+                loadTeams={loadTeams}
+              />
+            )}
+            
+            {activePage === 'users' && (
+              <UsersSection 
+                users={users}
+                form={userForm}
+                loading={loading}
+                error={error}
+                handleChange={handleUserChange}
+                handleSubmit={handleUserSubmit}
+              />
+            )}
+          </>
         )}
         
-        {/* Aquí puedes añadir más secciones para otras páginas */}
-        {activePage === 'dashboard' && (
+        {/* Secciones para entrenadores */}
+        {user?.role === 'coach' && (
+          <>
+            {activePage === 'dashboard' && (
+              <div className="content-wrapper">
+                <h2>Dashboard de Entrenador</h2>
+                <p>Bienvenido al panel de control de entrenador</p>
+              </div>
+            )}
+            
+            {activePage === 'myteam' && (
+              <CoachTeamSection />
+            )}
+            
+            {activePage === 'trainings' && (
+              <TrainingSection />
+            )}
+          </>
+        )}
+        
+        {/* Sección común para todos los usuarios */}
+        {activePage === 'settings' && (
           <div className="content-wrapper">
-            <h2>Dashboard Principal</h2>
-            <p>Bienvenido al panel de control</p>
+            <h2>Configuración</h2>
+            <p>Aquí podrás cambiar tus ajustes personales</p>
           </div>
-        )}
-        
-        {activePage === 'users' && (
-          <UsersSection 
-            users={users}
-            form={userForm}
-            loading={loading}
-            error={error}
-            handleChange={handleUserChange}
-            handleSubmit={handleUserSubmit}
-          />
         )}
       </div>
     </div>

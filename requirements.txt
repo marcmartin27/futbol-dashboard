@@ -1,0 +1,14 @@
+asgiref==3.8.1
+bcrypt==4.3.0
+Django==3.2.24
+django-cors-headers==3.13.0
+django-rest-framework-mongoengine==3.4.1
+djangorestframework==3.12.4
+djangorestframework-jwt==1.11.0
+dnspython==2.7.0
+mongoengine==0.29.1
+PyJWT==1.7.1
+pymongo==3.11.4
+pytz==2025.2
+sqlparse==0.5.3
+tzdata==2025.2

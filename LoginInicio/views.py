@@ -57,7 +57,9 @@ class UserLoginView(APIView):
                     'username': user.username,
                     'email': user.email,
                     'first_name': user.first_name,
-                    'last_name': user.last_name
+                    'last_name': user.last_name,
+                    'role': user.role,
+                    'team': str(user.team.id) if user.team else None
                 }
             })
         except Exception as e:
@@ -164,6 +166,17 @@ class UserListView(APIView):
             if User.objects(email=data.get('email')).first():
                 return Response(
                     {'error': 'El email ya está registrado'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+                        # Asignar rol (por defecto 'user' si no se especifica)
+            if not data.get('role'):
+                data['role'] = 'user'
+                
+            # Si es entrenador, verificar que tenga un equipo asignado
+            if data.get('role') == 'coach' and not data.get('team'):
+                return Response(
+                    {'error': 'Los entrenadores deben tener un equipo asignado'}, 
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
