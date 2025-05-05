@@ -142,9 +142,9 @@ class PlayerListView(APIView):
         try:
             if team_id:
                 team = Team.objects.get(id=team_id)
-                players = Player.objects(team=team).order_by('position', 'number')
+                players = Player.objects(team=team)
             else:
-                players = Player.objects.all().order_by('position', 'number')
+                players = Player.objects.all()
                 
             serializer = PlayerSerializer(players, many=True)
             return Response(serializer.data)
