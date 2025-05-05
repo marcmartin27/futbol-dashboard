@@ -1,10 +1,14 @@
-from django.urls import path
+from django.contrib import admin
+from django.urls import path, include
 from .views import (
     TeamListView, TeamCreateView, TeamTestView,
     TeamDetailView, PlayerListView, PlayerCreateView, PlayerDetailView
 )
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include('LoginInicio.urls')),
+    path('api/teams/', include('teams.urls')),
     path('', TeamListView.as_view(), name='team-list'),
     path('create/', TeamCreateView.as_view(), name='team-create'),
     path('test/', TeamTestView.as_view(), name='team-test'),
@@ -13,4 +17,5 @@ urlpatterns = [
     path('<str:team_id>/players/', PlayerListView.as_view(), name='team-player-list'),
     path('<str:team_id>/players/create/', PlayerCreateView.as_view(), name='team-player-create'),
     path('players/<str:id>/', PlayerDetailView.as_view(), name='player-detail'),
+    
 ]

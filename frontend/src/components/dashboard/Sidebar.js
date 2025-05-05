@@ -4,16 +4,22 @@ import { logout } from '../../services/auth';
 
 function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActivePage }) {
   const navigate = useNavigate();
-
+  
+  // Depuración para verificar el usuario y su rol
+  console.log("Usuario en sidebar:", user);
+  
   const handleLogout = () => {
     logout();
     window.location.href = '/login';
   };
 
-  // Determinar si mostrar opciones de admin
-  const isAdmin = user?.role === 'admin';
-  // Determinar si mostrar opciones de entrenador
-  const isCoach = user?.role === 'coach';
+  // Determinar roles con verificación estricta
+  const isAdmin = user && user.role === 'admin';
+  const isCoach = user && user.role === 'coach';
+  const isUser = user && (user.role === 'user' || !user.role);
+  
+  // Mostrar en consola para depuración
+  console.log(`Roles: Admin=${isAdmin}, Coach=${isCoach}, User=${isUser}`);
 
   return (
     <div className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
@@ -92,6 +98,20 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
           </>
         )}
         
+        {/* Opciones para usuarios regulares */}
+        {isUser && (
+          <li className="nav-item">
+            <a 
+              href="#" 
+              className={`nav-link ${activePage === 'matches' ? 'active' : ''}`}
+              onClick={() => setActivePage('matches')}
+            >
+              <span className="nav-icon"><i className="fas fa-trophy"></i></span>
+              <span className="nav-text">Partidos</span>
+            </a>
+          </li>
+        )}
+        
         <li className="nav-item">
           <a 
             href="#" 
@@ -110,7 +130,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
         </div>
         <div className="user-info">
           <div className="user-name">{user?.first_name || user?.username}</div>
-          <div className="user-role">
+          <div className="user-role role-badge role-{user?.role || 'user'}">
             {user?.role === 'admin' ? 'Administrador' : 
              user?.role === 'coach' ? 'Entrenador' : 'Usuario'}
           </div>

@@ -16,7 +16,7 @@ function Dashboard() {
   const [error, setError] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [activePage, setActivePage] = useState('teams');
+  const [activePage, setActivePage] = useState('dashboard');
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -24,15 +24,20 @@ function Dashboard() {
     const userData = JSON.parse(localStorage.getItem('user'));
     setUser(userData);
     
+    // Establecer página inicial según el rol
+    if (userData) {
+      if (userData.role === 'admin') {
+        setActivePage('teams');
+      } else if (userData.role === 'coach') {
+        setActivePage('myteam');
+      } else {
+        setActivePage('dashboard');
+      }
+    }
+    
     // Cargar equipos
     loadTeams();
   }, []);
-
-  useEffect(() => {
-    if (activePage === 'users') {
-      loadUsers();
-    }
-  }, [activePage]);
 
   const loadTeams = async () => {
     try {

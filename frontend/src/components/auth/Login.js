@@ -21,29 +21,59 @@ function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
-  
+    
     try {
-      const response = await fetch('http://localhost:8000/api/users/login/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(credentials)
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error en la autenticación');
-      }
-  
-      const data = await response.json();
-      setAuth(data);
+      console.log("Enviando solicitud de login a:", 'http://localhost:8000/api/login/');
       
-      // Usar window.location en lugar de navigate
-      window.location.href = '/dashboard';
-    } catch (error) {
-      setError(error.message);
-      console.error('Error de login:', error);
+      const response = await fetch('http://localhost:8000/api/login/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: credentials.username,
+          password: credentials.password
+        })
+      });
+      
+      // Mostrar información sobre la respuesta para diagnosticar
+      console.log("Respuesta:", {
+        status: response.status,
+        statusText: response.statusText,
+        contentType: response.headers.get('content-type')
+      });
+      
+      // Verificar el tipo de contenido
+      const contentType = response.headers.get('content-type');
+      
+      if (contentType && contentType.includes('application/json')) {
+        // Continuar con el procesamiento JSON normal
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Información de depuración
+          console.log("Datos de respuesta:", data);
+          
+          const userData = {
+            ...data.user,
+            token: data.token,
+            role: data.user.role || 'user' 
+          };
+          
+          setAuth(userData);
+          console.log("Usuario autenticado con rol:", userData.role);
+          navigate('/dashboard');
+        } else {
+          const errorData = await response.json();
+          setError(errorData.error || "Credenciales inválidas");
+        }
+      } else {
+        // Si no es JSON, capturar el texto para depuración
+        const text = await response.text();
+        console.error("Respuesta HTML (primeros 150 caracteres):", text.substring(0, 150));
+        throw new Error("El servidor no devolvió JSON. Posiblemente hay un error en el backend.");
+      }
+    } catch (err) {
+      console.error("Error detallado:", err);
+      setError("Error de conexión con el servidor. Verifica que el backend esté funcionando.");
     } finally {
       setLoading(false);
     }
