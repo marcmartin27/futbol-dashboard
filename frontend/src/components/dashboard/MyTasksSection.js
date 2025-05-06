@@ -87,112 +87,151 @@ function MyTasksSection() {
       <h2>Mis Tareas</h2>
       {error && <div className="error-message">{error}</div>}
 
-      <div className="card">
-        <div className="card-header">
-          <h2 className="card-title">Crear Nueva Tarea</h2>
-        </div>
-        <div className="card-body">
-          <form className="task-form" onSubmit={handleSubmit}>
-            <div className="form-control">
-              <input 
-                name="image" 
-                value={form.image} 
-                onChange={handleChange} 
-                placeholder="URL de la imagen" 
-                required 
-              />
+      <div className="tasks-layout">
+        {/* Columna del formulario (izquierda) */}
+        <div className="tasks-form-column">
+          <div className="card">
+            <div className="card-header">
+              <h2 className="card-title">Crear Nueva Tarea</h2>
             </div>
-            <div className="form-control">
-              <input 
-                name="title" 
-                value={form.title} 
-                onChange={handleChange} 
-                placeholder="Título" 
-                required 
-              />
-            </div>
-            <div className="form-control">
-              <textarea 
-                name="description" 
-                value={form.description} 
-                onChange={handleChange} 
-                placeholder="Descripción" 
-                required
-              ></textarea>
-            </div>
-            <div className="form-control">
-              <input 
-                name="participants" 
-                type="number"
-                value={form.participants} 
-                onChange={handleChange} 
-                placeholder="Número de jugadores/participantes" 
-                required 
-              />
-            </div>
-            <div className="form-control">
-              <input 
-                name="duration" 
-                type="number"
-                value={form.duration} 
-                onChange={handleChange} 
-                placeholder="Tiempo de duración (minutos)" 
-                required 
-              />
-            </div>
-            <div className="form-control">
-              <input 
-                name="category" 
-                value={form.category} 
-                onChange={handleChange} 
-                placeholder="Categoría" 
-                required 
-              />
-            </div>
-            <div className="form-control">
-              <input 
-                name="material" 
-                value={form.material} 
-                onChange={handleChange} 
-                placeholder="Material necesario" 
-                required 
-              />
-            </div>
-            <button 
-              type="submit" 
-              className="btn btn-primary"
-              disabled={loading}
-            >
-              {loading ? 'Creando...' : 'Crear Tarea'}
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <div className="card">
-        <div className="card-header">
-          <h2 className="card-title">Tareas Creadas</h2>
-        </div>
-        <div className="card-body">
-          {tasks.length === 0 ? (
-            <div className="empty-state">
-              <p>No hay tareas creadas aún.</p>
-            </div>
-          ) : (
-            <div className="task-grid">
-              {tasks.map(task => (
-                <div key={task.id || task._id} className="task-card">
-                  <img src={task.image} alt={task.title} />
-                  <h3>{task.title}</h3>
-                  <p>{task.description}</p>
-                  <p>Participantes: {task.participants}</p>
-                  <p>Duración: {task.duration} min</p>
-                  <p>Categoría: {task.category}</p>
-                  <p>Material: {task.material}</p>
+            <div className="card-body">
+              <form className="task-form" onSubmit={handleSubmit}>
+                <div className="form-control">
+                  <label>URL de imagen</label>
+                  <input 
+                    name="image" 
+                    value={form.image} 
+                    onChange={handleChange} 
+                    placeholder="URL de la imagen" 
+                    required 
+                  />
                 </div>
-              ))}
+                
+                <div className="form-control">
+                  <label>Título</label>
+                  <input 
+                    name="title" 
+                    value={form.title} 
+                    onChange={handleChange} 
+                    placeholder="Título de la tarea" 
+                    required 
+                  />
+                </div>
+                
+                <div className="form-control">
+                  <label>Descripción</label>
+                  <textarea 
+                    name="description" 
+                    value={form.description} 
+                    onChange={handleChange} 
+                    placeholder="Descripción detallada..." 
+                    required
+                  ></textarea>
+                </div>
+                
+                <div className="form-row">
+                  <div className="form-control half-width">
+                    <label>Participantes</label>
+                    <input 
+                      name="participants" 
+                      type="number"
+                      value={form.participants} 
+                      onChange={handleChange} 
+                      placeholder="Número de jugadores" 
+                      required 
+                    />
+                  </div>
+                  <div className="form-control half-width">
+                    <label>Duración (min)</label>
+                    <input 
+                      name="duration" 
+                      type="number"
+                      value={form.duration} 
+                      onChange={handleChange} 
+                      placeholder="90" 
+                      required 
+                    />
+                  </div>
+                </div>
+                
+                <div className="form-row">
+                  <div className="form-control half-width">
+                    <label>Categoría</label>
+                    <input 
+                      name="category" 
+                      value={form.category} 
+                      onChange={handleChange} 
+                      placeholder="Ej: Técnica, Táctica..." 
+                      required 
+                    />
+                  </div>
+                  <div className="form-control half-width">
+                    <label>Material</label>
+                    <input 
+                      name="material" 
+                      value={form.material} 
+                      onChange={handleChange} 
+                      placeholder="Material necesario" 
+                      required 
+                    />
+                  </div>
+                </div>
+                
+                <button 
+                  type="submit" 
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
+                  <i className="fas fa-plus mr-2"></i>
+                  {loading ? 'Creando...' : 'Crear Tarea'}
+                </button>
+              </form>
             </div>
-          )}
+          </div>
+        </div>
+        
+        {/* Columna de tareas (derecha) */}
+        <div className="tasks-list-column">
+          <div className="card">
+            <div className="card-header">
+              <h2 className="card-title">Tareas Creadas</h2>
+            </div>
+            <div className="card-body">
+              {tasks.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">
+                    <i className="fas fa-clipboard-list"></i>
+                  </div>
+                  <p className="empty-state-message">No hay tareas creadas aún</p>
+                  <p>Utiliza el formulario para crear tu primera tarea</p>
+                </div>
+              ) : (
+                <div className="task-grid">
+                  {tasks.map(task => (
+                    <div key={task.id || task._id} className="task-card">
+                      <img src={task.image} alt={task.title} />
+                      <h3>{task.title}</h3>
+                      <p>{task.description}</p>
+                      
+                      <div className="task-properties">
+                        <div className="task-property">
+                          <i className="fas fa-users"></i> {task.participants} participantes
+                        </div>
+                        <div className="task-property">
+                          <i className="fas fa-clock"></i> {task.duration} min
+                        </div>
+                        <span className="task-category">{task.category}</span>
+                      </div>
+                      
+                      <div className="task-material">
+                        <i className="fas fa-toolbox"></i> Material: {task.material}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
