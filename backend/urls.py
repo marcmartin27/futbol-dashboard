@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/users/', UserListView.as_view(), name='user-list'),
     path('api/token-refresh/', refresh_jwt_token, name='token-refresh'),
     path('api/teams/', include('teams.urls')),
+    path('api/tasks/', include('tasks.urls')),
 ]

@@ -4,10 +4,11 @@ import { authHeader } from '../../services/auth';
 import Sidebar from './Sidebar';
 import TeamSection from './TeamSection';
 import UsersSection from './UsersSection';
-import '../../styles/main.scss';
 import CoachTeamSection from './CoachTeamSection';
 import TrainingSection from './TrainingSection';
 import AttendanceSection from './AttendanceSection';
+import MyTasksSection from './MyTasksSection'; // Agrega esta línea
+import '../../styles/main.scss';
 
 
 function Dashboard() {
@@ -243,6 +244,11 @@ function Dashboard() {
             {activePage === 'attendance' && (
               <AttendanceSection />
             )}
+
+            {activePage === 'tasks' && (
+              <MyTasksSection />
+            )}
+
           </>
         )}
         

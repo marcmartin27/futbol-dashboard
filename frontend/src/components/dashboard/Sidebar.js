@@ -94,7 +94,6 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 <span className="nav-text">Entrenamientos</span>
               </a>
             </li>
-            {/* Añadir este nuevo elemento de menú */}
             <li className="nav-item">
               <a 
                 href="#" 
@@ -103,6 +102,16 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
               >
                 <span className="nav-icon"><i className="fas fa-clipboard-check"></i></span>
                 <span className="nav-text">Control de Asistencia</span>
+              </a>
+            </li>
+            <li className="nav-item">
+              <a 
+                href="#"
+                className={`nav-link ${activePage === 'tasks' ? 'active' : ''}`}
+                onClick={() => setActivePage('tasks')}
+              >
+                <span className="nav-icon"><i className="fas fa-tasks"></i></span>
+                <span className="nav-text">Mis Tareas</span>
               </a>
             </li>
           </>
