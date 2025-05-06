@@ -7,6 +7,8 @@ import UsersSection from './UsersSection';
 import '../../styles/main.scss';
 import CoachTeamSection from './CoachTeamSection';
 import TrainingSection from './TrainingSection';
+import AttendanceSection from './AttendanceSection';
+
 
 function Dashboard() {
   const [teams, setTeams] = useState([]);
@@ -236,6 +238,10 @@ function Dashboard() {
             
             {activePage === 'trainings' && (
               <TrainingSection />
+            )}
+
+            {activePage === 'attendance' && (
+              <AttendanceSection />
             )}
           </>
         )}

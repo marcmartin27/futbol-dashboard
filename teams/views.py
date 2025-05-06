@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Team, Player
-from .serializers import TeamSerializer, PlayerSerializer
+from .models import Team, Player, Attendance  # Añadir Attendance aquí
+from .serializers import TeamSerializer, PlayerSerializer, AttendanceSerializer  # Añadir AttendanceSerializer aquí
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsCoachOfTeamOrAdmin
 import traceback
@@ -219,6 +219,64 @@ class PlayerDetailView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Player.DoesNotExist:
             return Response({"error": "Jugador no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+# Añadir al final del archivo views.py
+class AttendanceListView(APIView):
+    permission_classes = [IsCoachOfTeamOrAdmin]
+    
+    def get(self, request, team_id):
+        try:
+            team = Team.objects.get(id=team_id)
+            players = Player.objects(team=team)
+            
+            # Obtener la semana solicitada (por defecto semana 1)
+            week = int(request.query_params.get('week', 1))
+            
+            attendances = []
+            for player in players:
+                # Buscar la asistencia o crear una si no existe
+                attendance = Attendance.objects(player=player, week=week).first()
+                if not attendance:
+                    attendance = Attendance(player=player, week=week)
+                    attendance.save()
+                attendances.append(attendance)
+            
+            serializer = AttendanceSerializer(attendances, many=True)
+            return Response(serializer.data)
+        except Team.DoesNotExist:
+            return Response({"error": "Equipo no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def put(self, request, team_id):
+        try:
+            # Actualizar una asistencia específica
+            attendance_id = request.data.get('id')
+            attendance = Attendance.objects.get(id=attendance_id)
+            
+            # Actualizar campos específicos
+            if 'training1' in request.data:
+                attendance.training1 = request.data.get('training1')
+            if 'training2' in request.data:
+                attendance.training2 = request.data.get('training2')
+            if 'training3' in request.data:
+                attendance.training3 = request.data.get('training3')
+            if 'match' in request.data:
+                attendance.match = request.data.get('match')
+            
+            attendance.save()
+            
+            serializer = AttendanceSerializer(attendance)
+            return Response(serializer.data)
+        except Attendance.DoesNotExist:
+            return Response({"error": "Asistencia no encontrada"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response(
                 {"error": f"Error del servidor: {str(e)}"}, 

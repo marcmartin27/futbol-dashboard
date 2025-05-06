@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, IntField, ReferenceField
+from mongoengine import Document, StringField, IntField, ReferenceField, BooleanField  # Añadir BooleanField aquí
 
 class Team(Document):
     name = StringField(required=True, max_length=100)
@@ -45,3 +45,14 @@ class Player(Document):
             'DEL': 'Delantero'
         }
         return positions.get(self.position, self.position)
+class Attendance(Document):
+    player = ReferenceField('Player', required=True)
+    week = IntField(required=True, min_value=1)
+    training1 = BooleanField(default=False)  # Entrenamiento 1
+    training2 = BooleanField(default=False)  # Entrenamiento 2
+    training3 = BooleanField(default=False)  # Entrenamiento 3
+    match = BooleanField(default=False)      # Partido
+    
+    meta = {'collection': 'attendances', 'indexes': [
+        {'fields': ['player', 'week'], 'unique': True}
+    ]}

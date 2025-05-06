@@ -72,7 +72,6 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
           </>
         )}
         
-        {/* Opciones solo para entrenadores */}
         {isCoach && (
           <>
             <li className="nav-item">
@@ -93,6 +92,17 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
               >
                 <span className="nav-icon"><i className="fas fa-running"></i></span>
                 <span className="nav-text">Entrenamientos</span>
+              </a>
+            </li>
+            {/* Añadir este nuevo elemento de menú */}
+            <li className="nav-item">
+              <a 
+                href="#" 
+                className={`nav-link ${activePage === 'attendance' ? 'active' : ''}`}
+                onClick={() => setActivePage('attendance')}
+              >
+                <span className="nav-icon"><i className="fas fa-clipboard-check"></i></span>
+                <span className="nav-text">Control de Asistencia</span>
               </a>
             </li>
           </>
