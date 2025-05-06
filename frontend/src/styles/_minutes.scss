@@ -1,0 +1,201 @@
+// Estilos para el control de minutaje
+.match-selector {
+    margin: 20px 0;
+    
+    .match-form {
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      
+      .form-group {
+        flex: 1;
+        min-width: 200px;
+        
+        label {
+          display: block;
+          font-size: 14px;
+          font-weight: 600;
+          margin-bottom: 8px;
+          color: #555;
+        }
+        
+        input {
+          width: 100%;
+          padding: 10px 14px;
+          border: 1px solid var(--border-color);
+          border-radius: 6px;
+          font-size: 14px;
+          transition: all 0.2s ease;
+          
+          &:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
+            outline: none;
+          }
+        }
+      }
+      
+      button {
+        height: 42px;
+        display: flex;
+        align-items: center;
+        
+        i {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+  
+  .minutes-table {
+    width: 100%;
+    overflow-x: auto;
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      
+      th, td {
+        padding: 12px 16px;
+        text-align: center;
+        border-bottom: 1px solid var(--border-color);
+      }
+      
+      th {
+        background-color: var(--background-light);
+        font-weight: 600;
+        color: var(--primary-dark);
+      }
+      
+      .player-column {
+        text-align: left;
+        min-width: 200px;
+      }
+    }
+  }
+  
+  .minutes-checkbox {
+    position: relative;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    
+    input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+    
+    .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 24px;
+      width: 24px;
+      background-color: #eee;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    
+    &:hover .checkmark {
+      background-color: #ccc;
+    }
+    
+    input:checked ~ .checkmark {
+      background-color: var(--primary-color);
+    }
+    
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+    
+    input:checked ~ .checkmark:after {
+      display: block;
+    }
+    
+    .checkmark:after {
+      left: 9px;
+      top: 5px;
+      width: 6px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
+  
+  .minutes-input {
+    // Quita las flechas en Chrome, Safari, Edge, Opera
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    
+    // Quita las flechas en Firefox
+    -moz-appearance: textfield;
+    
+    // Mantén el resto de estilos existentes
+    width: 60px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    
+    &:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+    
+    &:disabled {
+      background-color: #f5f5f5;
+      color: #999;
+    }
+  }
+  
+  .minutes-stats {
+    margin-top: 32px;
+    
+    .stats-summary {
+      display: flex;
+      justify-content: space-around;
+      gap: 20px;
+      flex-wrap: wrap;
+      
+      .stat-item {
+        text-align: center;
+        min-width: 120px;
+        
+        .stat-value {
+          font-size: 32px;
+          font-weight: 700;
+          color: var(--primary-color);
+        }
+        
+        .stat-label {
+          color: #666;
+          font-size: 14px;
+          margin-top: 4px;
+        }
+      }
+    }
+  }// Añadir después de la clase .minutes-input
+  .minutes-display {
+    display: inline-block;
+    width: 60px;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--primary-dark);
+  }

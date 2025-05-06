@@ -107,6 +107,16 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
             <li className="nav-item">
               <a 
                 href="#"
+                className={`nav-link ${activePage === 'minutes' ? 'active' : ''}`}
+                onClick={() => setActivePage('minutes')}
+              >
+                <span className="nav-icon"><i className="fas fa-stopwatch"></i></span>
+                <span className="nav-text">Minutaje</span>
+              </a>
+            </li>
+            <li className="nav-item">
+              <a 
+                href="#"
                 className={`nav-link ${activePage === 'tasks' ? 'active' : ''}`}
                 onClick={() => setActivePage('tasks')}
               >
@@ -114,6 +124,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 <span className="nav-text">Mis Tareas</span>
               </a>
             </li>
+
           </>
         )}
         
