@@ -2524,4 +2524,106 @@ body {
   font-weight: 600;
   text-align: center;
   color: var(--primary-dark);
+}
+
+.matches-filters {
+  margin-bottom: 20px;
+}
+.matches-filters .filter-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+.matches-filters .filter-section .filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+.matches-filters .filter-section .filter-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #555;
+}
+.matches-filters .filter-section .filter-group input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+.matches-filters .filter-section .filter-group input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
+  outline: none;
+}
+.matches-filters .filter-section .filter-dates {
+  display: flex;
+  gap: 12px;
+  flex: 2;
+}
+@media (max-width: 768px) {
+  .matches-filters .filter-section .filter-dates {
+    flex-direction: column;
+  }
+}
+
+.matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+.matches-list .match-item {
+  background-color: var(--background-light);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.matches-list .match-item:hover {
+  background-color: #e8eaf6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.matches-list .match-item .match-date {
+  font-weight: 600;
+  color: var(--primary-color);
+  background-color: rgba(63, 81, 181, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+.matches-list .match-item .match-name {
+  font-weight: 500;
+  font-size: 16px;
+  flex: 1;
+  margin-left: 16px;
+}
+.matches-list .match-item .match-players {
+  color: #666;
+  font-size: 14px;
+}
+.matches-list .match-item .match-players i {
+  margin-right: 6px;
+  color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+  .matches-filters .filter-section {
+    flex-direction: column;
+  }
+  .match-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .match-item .match-name {
+    margin-left: 0;
+  }
 }/*# sourceMappingURL=main.css.map */

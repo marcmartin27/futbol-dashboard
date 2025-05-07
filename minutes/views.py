@@ -11,6 +11,11 @@ class PlayerMinutesView(APIView):
     
     def get(self, request, team_id):
         try:
+            # Si se proporciona el parámetro 'matches', devolver lista de partidos
+            if request.query_params.get('matches') == 'true':
+                return self.get_matches(request, team_id)
+                
+            # Código para obtener minutaje específico de un partido
             team = Team.objects.get(id=team_id)
             players = Player.objects(team=team)
             
@@ -52,7 +57,48 @@ class PlayerMinutesView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
-    # Este método debe estar indentado dentro de la clase, al mismo nivel que 'get'
+    def get_matches(self, request, team_id):
+        """Obtener lista de partidos únicos para un equipo"""
+        try:
+            team = Team.objects.get(id=team_id)
+            
+            # Obtener todos los minutajes para este equipo
+            minutes = PlayerMinutes.objects(team=team)
+            
+            # Crear un diccionario para almacenar partidos únicos
+            unique_matches = {}
+            
+            # Agrupar manualmente
+            for minute in minutes:
+                # Crear clave única para cada partido
+                key = (str(minute.match_date), minute.match_name)
+                
+                if key not in unique_matches:
+                    unique_matches[key] = {
+                        'date': minute.match_date.strftime('%Y-%m-%d'),
+                        'name': minute.match_name,
+                        'player_count': 0
+                    }
+                
+                unique_matches[key]['player_count'] += 1
+            
+            # Convertir a lista y ordenar
+            result = list(unique_matches.values())
+            result.sort(key=lambda x: x['date'], reverse=True)
+            
+            return Response(result)
+                
+        except Team.DoesNotExist:
+            return Response({"error": "Equipo no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            import traceback
+            traceback_str = traceback.format_exc()
+            print(f"Error detallado: {traceback_str}")
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
     def put(self, request, team_id):
         try:
             # Actualizar un registro específico de minutos
