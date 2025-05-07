@@ -58,10 +58,10 @@ function Register() {
     <div className="auth-container">
       {/* Columna izquierda con imagen */}
       <div className="auth-image-column">
+        <div className="logo-container">
+          <img src={require('../../assets/images/logo.png')} alt="Team Manager" className="logo-large" />
+        </div>
         <div className="image-content">
-          <div className="brand-logo">
-            <i className="fas fa-futbol"></i>
-          </div>
           <h1 className="brand-tagline">Únete a la comunidad de entrenadores</h1>
           <p className="brand-description">
             Registra tu cuenta y comienza a gestionar equipos de forma profesional.
