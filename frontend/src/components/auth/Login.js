@@ -64,10 +64,10 @@ function Login() {
     <div className="auth-container">
       {/* Columna izquierda con imagen */}
       <div className="auth-image-column">
+        <div className="logo-container">
+          <img src={require('../../assets/images/logo.png')} alt="Team Manager" className="logo-large" />
+        </div>
         <div className="image-content">
-          <div className="brand-logo">
-            <i className="fas fa-futbol"></i>
-          </div>
           <h1 className="brand-tagline">Gestiona tu equipo al siguiente nivel</h1>
           <p className="brand-description">
             La plataforma integral para entrenadores, jugadores y directivos de fútbol.

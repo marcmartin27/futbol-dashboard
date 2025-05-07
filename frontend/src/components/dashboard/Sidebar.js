@@ -25,9 +25,9 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
     <div className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
       <div className="brand">
         <div className="brand-logo">
-          <i className="fas fa-futbol"></i>
+          <img src={require('../../assets/images/logo-small.png')} alt="Team Manager Logo" />
         </div>
-        <div className="brand-text">Futbol Dashboard</div>
+        <div className="brand-text">Team Manager</div>
         
         <div className="sidebar-toggle" onClick={toggleSidebar}>
           <i className={`fas ${sidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'}`}></i>
@@ -164,7 +164,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
           </a>
         </li>
       </ul>
-      
+
       <div className="user-panel">
         <div className="user-avatar">
           <i className="fas fa-user"></i>

@@ -186,10 +186,10 @@ function Dashboard() {
       <div className="main-content">
         <div className="top-bar">
           <h1 className="page-title">
-            {user?.role === 'admin' ? 'Panel de Administración' : 'Panel de Entrenador'}
+            {user?.role === 'admin' ? 'Panel de Administración' : 'Panel de Entrenador'} | Team Manager
           </h1>
         </div>
-        
+          
         {/* Secciones para administradores */}
         {user?.role === 'admin' && (
           <>
