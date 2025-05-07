@@ -339,9 +339,12 @@ body {
   position: fixed;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden; /* Añadir esta línea para eliminar scrollbar horizontal */
   transition: width 0.3s ease;
   box-shadow: 2px 0 8px var(--shadow-color);
   z-index: 1000;
+  display: flex; /* Para organizar internamente */
+  flex-direction: column; /* Para posicionar user-panel abajo */
 }
 
 .sidebar.collapsed {
@@ -404,6 +407,7 @@ body {
 .nav-menu {
   padding: 20px 0;
   list-style: none;
+  flex: 1; /* Para empujar el panel de usuario al fondo */
 }
 
 .nav-item {
@@ -544,6 +548,84 @@ body {
 .content-wrapper {
   padding: 24px;
   flex-grow: 1;
+}
+
+.user-panel {
+  padding: 15px;
+  margin-top: auto; /* Empuja al fondo */
+  background-color: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-avatar i {
+  color: white;
+  font-size: 16px;
+}
+
+.user-info {
+  flex-grow: 1;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 10px;
+}
+
+.collapsed .user-info {
+  opacity: 0;
+  width: 0;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: white;
+}
+
+.user-role {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.logout-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Estilos específicos para la vista de equipos */

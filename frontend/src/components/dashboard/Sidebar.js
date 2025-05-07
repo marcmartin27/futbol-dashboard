@@ -171,9 +171,9 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
         </div>
         <div className="user-info">
           <div className="user-name">{user?.first_name || user?.username}</div>
-          <div className="user-role role-badge role-{user?.role || 'user'}">
+          <div className="user-role">
             {user?.role === 'admin' ? 'Administrador' : 
-             user?.role === 'coach' ? 'Entrenador' : 'Usuario'}
+            user?.role === 'coach' ? 'Entrenador' : 'Usuario'}
           </div>
         </div>
         <button className="logout-btn" onClick={handleLogout} title="Cerrar sesión">
