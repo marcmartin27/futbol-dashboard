@@ -25,15 +25,36 @@ function Dashboard() {
   const [activePage, setActivePage] = useState('dashboard');
   const [users, setUsers] = useState([]);
 
+  // Función para cargar usuarios
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:8000/api/users/', {
+        headers: authHeader()
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Error ${response.status}`);
+      }
+      const data = await response.json();
+      setUsers(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError("Error cargando usuarios: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cargar datos iniciales
   useEffect(() => {
-    // Cargar los datos del usuario
+    // Cargar datos del usuario
     const userData = JSON.parse(localStorage.getItem('user'));
     setUser(userData);
     
-    // Establecer página inicial según el rol
     if (userData) {
       if (userData.role === 'admin') {
         setActivePage('teams');
+        loadUsers();  // Si es admin, cargar usuarios al inicio
       } else if (userData.role === 'coach') {
         setActivePage('myteam');
       } else {
@@ -44,6 +65,13 @@ function Dashboard() {
     // Cargar equipos
     loadTeams();
   }, []);
+
+  // Asegurarse de recargar usuarios cada vez que se active la sección de gestión de usuarios
+  useEffect(() => {
+    if (activePage === 'users') {
+      loadUsers();
+    }
+  }, [activePage]);
 
   const loadTeams = async () => {
     try {
@@ -67,25 +95,6 @@ function Dashboard() {
       setTeams(Array.isArray(data) ? data : []);
     } catch (err) {
       setError("Error cargando equipos: " + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadUsers = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('http://localhost:8000/api/users/', {
-        headers: authHeader()
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Error ${response.status}`);
-      }
-      const data = await response.json();
-      setUsers(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError("Error cargando usuarios: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -153,7 +162,6 @@ function Dashboard() {
         const errorData = await response.json();
         throw new Error(errorData.error || `Error ${response.status}`);
       }
-      
       // Limpiar el formulario y recargar usuarios
       setUserForm({ username: '', email: '', role: '', team: '' });
       loadUsers();
@@ -221,6 +229,7 @@ function Dashboard() {
                 error={error}
                 handleChange={handleUserChange}
                 handleSubmit={handleUserSubmit}
+                refreshUsers={loadUsers}
               />
             )}
           </>

@@ -1,9 +1,12 @@
+//// filepath: /home/daw2/Escriptori/futbol-dashboard/frontend/src/components/dashboard/UsersSection.js
 import React, { useState, useEffect } from 'react';
 import { authHeader } from '../../services/auth';
+import EditUserModal from './EditUserModal';
 import '../../styles/main.scss';
 
-function UsersSection({ users, form, loading, error, handleChange, handleSubmit }) {
+function UsersSection({ users, form, loading, error, handleChange, handleSubmit, refreshUsers }) {
   const [teams, setTeams] = useState([]);
+  const [editingUser, setEditingUser] = useState(null);
   
   useEffect(() => {
     loadTeams();
@@ -14,18 +17,47 @@ function UsersSection({ users, form, loading, error, handleChange, handleSubmit 
       const response = await fetch('http://localhost:8000/api/teams/', {
         headers: authHeader()
       });
-      
       if (!response.ok) {
         throw new Error(`Error ${response.status}`);
       }
-      
       const data = await response.json();
       setTeams(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error cargando equipos:", err);
     }
   };
-  
+
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm("¿Estás seguro de que deseas eliminar este usuario?")) return;
+    
+    try {
+      const response = await fetch(`http://localhost:8000/api/users/${userId}`, {
+        method: 'DELETE',
+        headers: authHeader()
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Error ${response.status}`);
+      }
+      refreshUsers(); // función pasada desde Dashboard para recargar la lista de usuarios
+    } catch (err) {
+      alert("Error eliminando usuario: " + err.message);
+    }
+  };
+
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+  };
+
+  const closeEditModal = () => {
+    setEditingUser(null);
+  };
+
+  const onUserUpdated = (updatedUser) => {
+    refreshUsers();
+  };
+
   return (
     <div className="content-wrapper">
       {error && <div className="error-message">{error}</div>}
@@ -121,12 +153,32 @@ function UsersSection({ users, form, loading, error, handleChange, handleSubmit 
                     <div className="user-name">{user.username}</div>
                     <div className="user-email">{user.email}</div>
                     <div className="user-role">{user.role || 'Sin rol'}</div>
+                    {user.role === 'coach' && user.team && (
+                      <div className="user-team">
+                        Equipo asignado: {
+                          (() => {
+                            const assignedTeam = teams.find(
+                              team => team.id === user.team || team._id === user.team
+                            );
+                            return assignedTeam ? assignedTeam.name : user.team;
+                          })()
+                        }
+                      </div>
+                    )}
                   </div>
                   <div className="user-actions">
-                    <button className="btn btn-icon-only" title="Editar usuario">
+                    <button 
+                      className="btn btn-icon-only" 
+                      title="Editar usuario"
+                      onClick={() => handleEditUser(user)}
+                    >
                       <i className="fas fa-edit"></i>
                     </button>
-                    <button className="btn btn-icon-only" title="Eliminar usuario">
+                    <button 
+                      className="btn btn-icon-only" 
+                      title="Eliminar usuario"
+                      onClick={() => handleDeleteUser(user.id || user._id)}
+                    >
                       <i className="fas fa-trash"></i>
                     </button>
                   </div>
@@ -136,6 +188,15 @@ function UsersSection({ users, form, loading, error, handleChange, handleSubmit 
           )}
         </div>
       </div>
+      
+      {editingUser && (
+        <EditUserModal 
+          userToEdit={editingUser} 
+          teams={teams} 
+          onClose={closeEditModal} 
+          onUserUpdated={onUserUpdated}
+        />
+      )}
     </div>
   );
 }
