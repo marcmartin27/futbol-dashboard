@@ -125,6 +125,17 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
               </a>
             </li>
 
+            <li className="nav-item">
+              <a 
+                href="#"
+                className={`nav-link ${activePage === 'sessions' ? 'active' : ''}`}
+                onClick={() => setActivePage('sessions')}
+              >
+                <span className="nav-icon"><i className="fas fa-stream"></i></span>
+                <span className="nav-text">Sesiones</span>
+              </a>
+            </li>
+
           </>
         )}
         

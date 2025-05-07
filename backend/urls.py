@@ -25,4 +25,5 @@ urlpatterns = [
     path('api/teams/', include('teams.urls')),
     path('api/tasks/', include('tasks.urls')),
     path('api/teams/', include('minutes.urls')),
+    path('api/sessions/', include('sesions.urls')),
 ]

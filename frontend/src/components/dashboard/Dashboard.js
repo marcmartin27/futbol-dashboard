@@ -10,6 +10,7 @@ import AttendanceSection from './AttendanceSection';
 import MyTasksSection from './MyTasksSection'; // Agrega esta línea
 import '../../styles/main.scss';
 import MinutesSection from './MinutesSection';
+import MySessions from './MySessions'; // Agrega esta línea junto a las demás importaciones
 
 
 
@@ -249,6 +250,10 @@ function Dashboard() {
 
             {activePage === 'tasks' && (
               <MyTasksSection />
+            )}
+
+            {activePage === 'sessions' && (
+              <MySessions />
             )}
 
             {activePage === 'minutes' && (
