@@ -1,4 +1,3 @@
-// src/components/auth/Register.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/main.scss';
@@ -50,7 +49,6 @@ function Register() {
       }, 2000);
     } catch (error) {
       setError(error.message);
-      console.error('Error de registro:', error);
     } finally {
       setLoading(false);
     }
@@ -58,15 +56,27 @@ function Register() {
   
   return (
     <div className="auth-container">
-      <div className="auth-form-container">
-        <div className="auth-header">
-          <div className="logo">
-            <i className="fas fa-futbol fa-2x"></i>
+      {/* Columna izquierda con imagen */}
+      <div className="auth-image-column">
+        <div className="image-content">
+          <div className="brand-logo">
+            <i className="fas fa-futbol"></i>
           </div>
-          <h1>Crear Nueva Cuenta</h1>
+          <h1 className="brand-tagline">Únete a la comunidad de entrenadores</h1>
+          <p className="brand-description">
+            Registra tu cuenta y comienza a gestionar equipos de forma profesional.
+          </p>
         </div>
-        
-        <div className="auth-body">
+      </div>
+      
+      {/* Columna derecha con formulario */}
+      <div className="auth-form-column">
+        <div className="auth-form-wrapper">
+          <div className="auth-header">
+            <h1 className="app-title">Team Manager</h1>
+            <p className="app-subtitle">Crear una cuenta nueva</p>
+          </div>
+          
           {error && <div className="error-message">{error}</div>}
           {success && <div className="success-message">{success}</div>}
           

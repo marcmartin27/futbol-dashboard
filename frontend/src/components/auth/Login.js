@@ -1,4 +1,3 @@
-// src/components/auth/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setAuth } from '../../services/auth';
@@ -23,8 +22,6 @@ function Login() {
     setLoading(true);
     
     try {
-      console.log("Enviando solicitud de login a:", 'http://localhost:8000/api/login/');
-      
       const response = await fetch('http://localhost:8000/api/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -34,23 +31,11 @@ function Login() {
         })
       });
       
-      // Mostrar información sobre la respuesta para diagnosticar
-      console.log("Respuesta:", {
-        status: response.status,
-        statusText: response.statusText,
-        contentType: response.headers.get('content-type')
-      });
-      
-      // Verificar el tipo de contenido
       const contentType = response.headers.get('content-type');
       
       if (contentType && contentType.includes('application/json')) {
-        // Continuar con el procesamiento JSON normal
         if (response.ok) {
           const data = await response.json();
-          
-          // Información de depuración
-          console.log("Datos de respuesta:", data);
           
           const userData = {
             ...data.user,
@@ -59,20 +44,16 @@ function Login() {
           };
           
           setAuth(userData);
-          console.log("Usuario autenticado con rol:", userData.role);
           navigate('/dashboard');
         } else {
           const errorData = await response.json();
           setError(errorData.error || "Credenciales inválidas");
         }
       } else {
-        // Si no es JSON, capturar el texto para depuración
         const text = await response.text();
-        console.error("Respuesta HTML (primeros 150 caracteres):", text.substring(0, 150));
         throw new Error("El servidor no devolvió JSON. Posiblemente hay un error en el backend.");
       }
     } catch (err) {
-      console.error("Error detallado:", err);
       setError("Error de conexión con el servidor. Verifica que el backend esté funcionando.");
     } finally {
       setLoading(false);
@@ -81,15 +62,27 @@ function Login() {
   
   return (
     <div className="auth-container">
-      <div className="auth-form-container">
-        <div className="auth-header">
-          <div className="logo">
-            <i className="fas fa-futbol fa-2x"></i>
+      {/* Columna izquierda con imagen */}
+      <div className="auth-image-column">
+        <div className="image-content">
+          <div className="brand-logo">
+            <i className="fas fa-futbol"></i>
           </div>
-          <h1>Futbol Dashboard</h1>
+          <h1 className="brand-tagline">Gestiona tu equipo al siguiente nivel</h1>
+          <p className="brand-description">
+            La plataforma integral para entrenadores, jugadores y directivos de fútbol.
+          </p>
         </div>
-        
-        <div className="auth-body">
+      </div>
+      
+      {/* Columna derecha con formulario */}
+      <div className="auth-form-column">
+        <div className="auth-form-wrapper">
+          <div className="auth-header">
+            <h1 className="app-title">Team Manager</h1>
+            <p className="app-subtitle">Inicia sesión en tu cuenta</p>
+          </div>
+          
           {error && <div className="error-message">{error}</div>}
           
           <form onSubmit={handleSubmit} className="auth-form">
