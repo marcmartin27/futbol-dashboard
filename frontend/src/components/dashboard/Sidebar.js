@@ -109,16 +109,6 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
             <li className="nav-item">
               <a 
                 href="#" 
-                className={`nav-link ${activePage === 'trainings' ? 'active' : ''}`}
-                onClick={() => setActivePage('trainings')}
-              >
-                <span className="nav-icon"><i className="fas fa-running"></i></span>
-                <span className="nav-text">Entrenamientos</span>
-              </a>
-            </li>
-            <li className="nav-item">
-              <a 
-                href="#" 
                 className={`nav-link ${activePage === 'attendance' ? 'active' : ''}`}
                 onClick={() => setActivePage('attendance')}
               >

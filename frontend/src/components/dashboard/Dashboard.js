@@ -5,7 +5,6 @@ import Sidebar from './Sidebar';
 import TeamSection from './TeamSection';
 import UsersSection from './UsersSection';
 import CoachTeamSection from './CoachTeamSection';
-import TrainingSection from './TrainingSection';
 import AttendanceSection from './AttendanceSection';
 import MyTasksSection from './MyTasksSection'; // Agrega esta línea
 import '../../styles/main.scss';
@@ -259,10 +258,7 @@ function Dashboard() {
             {activePage === 'myteam' && (
               <CoachTeamSection />
             )}
-            
-            {activePage === 'trainings' && (
-              <TrainingSection />
-            )}
+          
 
             {activePage === 'attendance' && (
               <AttendanceSection />
