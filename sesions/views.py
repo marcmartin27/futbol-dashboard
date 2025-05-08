@@ -6,6 +6,8 @@ from .serializers import SessionSerializer
 from rest_framework.permissions import IsAuthenticated
 from teams.models import Player
 from tasks.models import Task
+from .utils import notify_admins_new_session
+
 
 class SessionListCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -47,7 +49,17 @@ class SessionListCreateView(APIView):
         
         serializer = SessionSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()
+            session = serializer.save()
+            
+            # Enviar notificación por correo a los administradores
+            try:
+                notify_admins_new_session(session, request.user)
+                print("Notificación por correo enviada exitosamente")
+            except Exception as e:
+                print(f"Error al enviar notificación por correo: {str(e)}")
+                # No devolvemos error al cliente si falla el envío de correo
+                # La sesión ya se guardó correctamente
+            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -60,10 +60,11 @@ CORS_ALLOW_ALL_ORIGINS = True  # For development only, restrict in production
 
 ROOT_URLCONF = 'backend.urls'
 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # Añadir esta línea
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -118,3 +119,26 @@ MONGO_URI = (
 
 # Connect to MongoDB on application startup
 mongoengine.connect(host=MONGO_URI)
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'gamepaparruchas@gmail.com'
+EMAIL_HOST_PASSWORD = 'bkwl feeo qdfd qkec'
+DEFAULT_FROM_EMAIL = 'Team Manager <gamepaparruchas@gmail.com>'
+
+
+try:
+    from django.core.mail import send_mail
+    print("Enviando correo de prueba...")
+    send_mail(
+        'Prueba de correo desde Django',
+        'Este es un mensaje de prueba para verificar la configuración de correo.',
+        'Team Manager <gamepaparruchas@gmail.com>',
+        ['marc.martin@inslapineda.cat'],
+        fail_silently=False,
+    )
+    print("Correo de prueba enviado correctamente")
+except Exception as e:
+    print(f"ERROR al enviar correo de prueba: {str(e)}")
