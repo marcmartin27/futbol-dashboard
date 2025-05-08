@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { authHeader } from '../../services/auth';
+import AttendanceModal from './AttendanceModal';
 import '../../styles/_attendance.scss';
 
 function AttendanceSection() {
@@ -8,6 +9,7 @@ function AttendanceSection() {
   const [attendances, setAttendances] = useState([]);
   const [week, setWeek] = useState(1);
   const [playerData, setPlayerData] = useState({});
+  const [selectedAttendance, setSelectedAttendance] = useState(null);
 
   // Obtener usuario desde localStorage
   const user = JSON.parse(localStorage.getItem('user'));
@@ -87,13 +89,25 @@ function AttendanceSection() {
       setLoading(false);
     }
   };
+
+  // Abre el modal filtrando registros de asistencia del jugador seleccionado
+  const handleOpenAttendanceModal = (playerId) => {
+    const records = attendances.filter(att => att.player === playerId);
+    const player = playerData[playerId] || { name: 'Jugador', last_name: '' };
+    setSelectedAttendance({ player, records });
+  };
   
   const handleWeekChange = (newWeek) => {
     if (newWeek > 0) {
       setWeek(newWeek);
     }
   };
-  
+
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
   if (loading && attendances.length === 0) {
     return <div className="content-wrapper loading">Cargando datos de asistencia...</div>;
   }
@@ -140,24 +154,30 @@ function AttendanceSection() {
                 </tr>
               </thead>
               <tbody>
-                {attendances.map(attendance => {
-                  const player = playerData[attendance.player];
-                  return (
-                    <tr key={attendance.id}>
-                      <td className="player-column">
-                        <div className="player-info">
-                          <div className="player-name">
-                            {player ? `${player.name} ${player.last_name}` : 
-                              `${attendance.player_name} ${attendance.player_last_name}`}
-                          </div>
-                          {player && (
-                            <div className="player-details">
-                              <span className="player-number">{player.number}</span>
-                              <span className="player-position">{player.position_display}</span>
+                  {attendances.map(attendance => {
+                    const player = playerData[attendance.player];
+                    return (
+                      <tr key={attendance.id}>
+                        <td 
+                          className="player-column" 
+                          onClick={() => handleOpenAttendanceModal(attendance.player)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <div className="player-info">
+                            <div className="player-name">
+                              {player 
+                                ? `${player.name} ${player.last_name}` 
+                                : `${attendance.player_name} ${attendance.player_last_name}`
+                              }
                             </div>
-                          )}
-                        </div>
-                      </td>
+                            {player && (
+                              <div className="player-details">
+                                <span className="player-number">{player.number}</span>
+                                <span className="player-position">{player.position_display}</span>
+                              </div>
+                            )}
+                          </div>
+                        </td>
                       <td>
                         <label className="attendance-checkbox">
                           <input 
@@ -243,6 +263,14 @@ function AttendanceSection() {
             </div>
           </div>
         </div>
+      )}
+
+      {selectedAttendance && (
+        <AttendanceModal 
+          player={selectedAttendance.player} 
+          attendanceRecords={selectedAttendance.records} 
+          onClose={() => setSelectedAttendance(null)} 
+        />
       )}
     </div>
   );
