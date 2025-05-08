@@ -11,6 +11,10 @@ import MyTasksSection from './MyTasksSection'; // Agrega esta línea
 import '../../styles/main.scss';
 import MinutesSection from './MinutesSection';
 import MySessions from './MySessions'; // Agrega esta línea junto a las demás importaciones
+import AdminTasksSection from './AdminTasksSection';
+import AdminSessionsSection from './AdminSessionsSection';
+
+
 
 
 
@@ -231,6 +235,13 @@ function Dashboard() {
                 handleSubmit={handleUserSubmit}
                 refreshUsers={loadUsers}
               />
+            )}
+            {activePage === 'admin-tasks' && (
+              <AdminTasksSection />
+            )}
+
+            {activePage === 'admin-sessions' && (
+              <AdminSessionsSection />
             )}
           </>
         )}

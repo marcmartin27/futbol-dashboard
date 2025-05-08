@@ -1,0 +1,357 @@
+// Estilos para la sección de sesiones del administrador
+
+.admin-sessions-container {
+    margin-top: 20px;
+    
+    .coach-section {
+      margin-bottom: 32px;
+      
+      .coach-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-color);
+        
+        .coach-avatar {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background-color: var(--primary-color);
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          font-weight: 600;
+        }
+        
+        .coach-info {
+          flex: 1;
+          
+          .coach-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 4px;
+          }
+          
+          .coach-team {
+            font-size: 14px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            
+            i {
+              margin-right: 6px;
+              color: var(--primary-color);
+            }
+          }
+        }
+        
+        .session-count {
+          background-color: var(--primary-light);
+          color: white;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: 600;
+        }
+      }
+    }
+    
+    // Contenedor de filtros
+    .filter-container {
+      margin-bottom: 24px;
+      padding: 16px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-end;
+      
+      .filter-group {
+        flex: 1;
+        min-width: 200px;
+        
+        label {
+          display: block;
+          font-weight: 600;
+          margin-bottom: 8px;
+          color: #374151;
+          font-size: 14px;
+        }
+        
+        input, select {
+          width: 100%;
+          padding: 10px 14px;
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          font-size: 14px;
+          
+          &:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
+            outline: none;
+          }
+        }
+      }
+      
+      .filter-actions {
+        display: flex;
+        gap: 8px;
+        
+        button {
+          padding: 10px 16px;
+          border-radius: 8px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          
+          i {
+            font-size: 14px;
+          }
+        }
+      }
+    }
+    
+    // Estilo para la cuadrícula de sesiones dentro de cada sección de entrenador
+    .coach-sessions {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    // Tarjeta de sesión
+    .admin-session-card {
+      background-color: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      border: 1px solid var(--border-color);
+      
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+      }
+      
+      .session-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        .session-date {
+          font-size: 16px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          
+          i {
+            margin-right: 6px;
+          }
+        }
+        
+        .session-duration {
+          display: flex;
+          align-items: center;
+          background-color: rgba(255, 255, 255, 0.2);
+          padding: 4px 10px;
+          border-radius: 16px;
+          font-size: 13px;
+          
+          i {
+            margin-right: 6px;
+          }
+        }
+      }
+      
+      .session-content {
+        padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        
+        .session-tasks {
+          margin-bottom: 16px;
+          
+          h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            
+            i {
+              margin-right: 8px;
+              color: var(--primary-color);
+            }
+          }
+          
+          .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            
+            .task-item {
+              background-color: #f1f5f9;
+              border-radius: 8px;
+              padding: 8px 10px;
+              font-size: 13px;
+              display: flex;
+              align-items: center;
+              
+              &:before {
+                content: '';
+                display: inline-block;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: var(--primary-color);
+                margin-right: 8px;
+                flex-shrink: 0;
+              }
+            }
+          }
+        }
+        
+        .session-players {
+          margin-top: auto;
+          
+          h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            
+            i {
+              margin-right: 8px;
+              color: var(--primary-color);
+            }
+            
+            .player-count {
+              margin-left: 8px;
+              font-size: 14px;
+              color: #64748b;
+              font-weight: 500;
+            }
+          }
+          
+          .players-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            
+            .player-avatar {
+              width: 30px;
+              height: 30px;
+              border-radius: 50%;
+              background-color: var(--primary-light);
+              color: white;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 12px;
+              font-weight: 600;
+            }
+            
+            .more-players {
+              width: 30px;
+              height: 30px;
+              border-radius: 50%;
+              background-color: #e2e8f0;
+              color: #64748b;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 12px;
+              font-weight: 600;
+            }
+          }
+        }
+      }
+      
+      .session-footer {
+        padding: 12px 16px;
+        border-top: 1px solid var(--border-color);
+        background-color: #f8fafc;
+        display: flex;
+        justify-content: space-between;
+        
+        .session-info {
+          font-size: 13px;
+          color: #64748b;
+          display: flex;
+          align-items: center;
+          
+          i {
+            margin-right: 6px;
+            color: var(--primary-color);
+          }
+        }
+      }
+    }
+    
+    // Estado vacío
+    .admin-empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      
+      .icon {
+        font-size: 48px;
+        color: #94a3b8;
+        margin-bottom: 16px;
+      }
+      
+      .title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+      }
+      
+      .description {
+        color: #64748b;
+        font-size: 15px;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+    }
+  }
+  
+  // Estado de carga
+  .admin-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    
+    .spinner {
+      animation: spin 1s linear infinite;
+      font-size: 24px;
+      color: var(--primary-color);
+      margin-right: 12px;
+    }
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }

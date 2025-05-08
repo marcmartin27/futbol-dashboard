@@ -1,4 +1,3 @@
-//// filepath: /home/daw2/Escriptori/futbol-dashboard/frontend/src/components/dashboard/UsersSection.js
 import React, { useState, useEffect } from 'react';
 import { authHeader } from '../../services/auth';
 import EditUserModal from './EditUserModal';
@@ -31,7 +30,7 @@ function UsersSection({ users, form, loading, error, handleChange, handleSubmit,
     if (!window.confirm("¿Estás seguro de que deseas eliminar este usuario?")) return;
     
     try {
-      const response = await fetch(`http://localhost:8000/api/users/${userId}`, {
+      const response = await fetch(`http://localhost:8000/api/users/${userId}/`, {
         method: 'DELETE',
         headers: authHeader()
       });
@@ -40,7 +39,7 @@ function UsersSection({ users, form, loading, error, handleChange, handleSubmit,
         const errorData = await response.json();
         throw new Error(errorData.error || `Error ${response.status}`);
       }
-      refreshUsers(); // función pasada desde Dashboard para recargar la lista de usuarios
+      refreshUsers();
     } catch (err) {
       alert("Error eliminando usuario: " + err.message);
     }
@@ -57,9 +56,24 @@ function UsersSection({ users, form, loading, error, handleChange, handleSubmit,
   const onUserUpdated = (updatedUser) => {
     refreshUsers();
   };
+  
+  // Función para obtener iniciales del usuario
+  const getUserInitials = (user) => {
+    if (!user) return '';
+    if (user.first_name && user.last_name) {
+      return (user.first_name[0] + user.last_name[0]).toUpperCase();
+    }
+    return user.username.substring(0, 2).toUpperCase();
+  };
+  
+  // Función para obtener nombre del equipo
+  const getTeamName = (teamId) => {
+    const team = teams.find(t => (t.id === teamId || t._id === teamId));
+    return team ? team.name : 'No asignado';
+  };
 
   return (
-    <div className="content-wrapper">
+    <div className="content-wrapper users-management-section">
       {error && <div className="error-message">{error}</div>}
       
       <div className="card">
@@ -111,7 +125,7 @@ function UsersSection({ users, form, loading, error, handleChange, handleSubmit,
                 >
                   <option value="">Seleccionar equipo</option>
                   {teams.map(team => (
-                    <option key={team.id} value={team.id}>
+                    <option key={team.id || team._id} value={team.id || team._id}>
                       {team.name}
                     </option>
                   ))}
@@ -124,6 +138,7 @@ function UsersSection({ users, form, loading, error, handleChange, handleSubmit,
               className="btn btn-primary"
               disabled={loading}
             >
+              <i className="fas fa-plus"></i>
               {loading ? 'Creando...' : 'Crear Usuario'}
             </button>
           </form>
@@ -135,7 +150,7 @@ function UsersSection({ users, form, loading, error, handleChange, handleSubmit,
           <h2 className="card-title">Usuarios Registrados</h2>
         </div>
         <div className="card-body">
-          {loading && <p className="loading">Cargando usuarios...</p>}
+          {loading && <div className="loading"><i className="fas fa-spinner"></i>Cargando usuarios...</div>}
           
           {!loading && users.length === 0 ? (
             <div className="empty-state">
@@ -149,33 +164,69 @@ function UsersSection({ users, form, loading, error, handleChange, handleSubmit,
             <ul className="user-list">
               {users.map(user => (
                 <li key={user.id || user._id} className="user-item">
-                  <div className="user-info">
-                    <div className="user-name">{user.username}</div>
-                    <div className="user-email">{user.email}</div>
-                    <div className="user-role">{user.role || 'Sin rol'}</div>
-                    {user.role === 'coach' && user.team && (
-                      <div className="user-team">
-                        Equipo asignado: {
-                          (() => {
-                            const assignedTeam = teams.find(
-                              team => team.id === user.team || team._id === user.team
-                            );
-                            return assignedTeam ? assignedTeam.name : user.team;
-                          })()
-                        }
+                  <div className="user-header">
+                    <div className={`user-avatar role-${user.role || 'user'}`}>
+                      {getUserInitials(user)}
+                    </div>
+                    <div className="user-header-info">
+                      <div className="user-name">{user.username}</div>
+                      <div className="user-email">{user.email}</div>
+                    </div>
+                    <div className={`user-role-badge role-${user.role || 'user'}`}>
+                      {user.role === 'admin' ? 'Administrador' : 
+                       user.role === 'coach' ? 'Entrenador' : 'Usuario'}
+                    </div>
+                  </div>
+                  
+                  <div className="user-details">
+                    {user.first_name && user.last_name && (
+                      <div className="user-detail-item">
+                        <div className="detail-icon">
+                          <i className="fas fa-user"></i>
+                        </div>
+                        <div className="detail-content">
+                          <div className="detail-label">Nombre completo</div>
+                          <div className="detail-value">{`${user.first_name} ${user.last_name}`}</div>
+                        </div>
                       </div>
                     )}
+                    
+                    {user.role === 'coach' && user.team && (
+                      <div className="user-detail-item">
+                        <div className="detail-icon">
+                          <i className="fas fa-futbol"></i>
+                        </div>
+                        <div className="detail-content">
+                          <div className="detail-label">Equipo asignado</div>
+                          <div className="detail-value">{getTeamName(user.team)}</div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="user-detail-item">
+                      <div className="detail-icon">
+                        <i className="fas fa-shield-alt"></i>
+                      </div>
+                      <div className="detail-content">
+                        <div className="detail-label">Permisos</div>
+                        <div className="detail-value">
+                          {user.role === 'admin' ? 'Acceso completo al sistema' : 
+                           user.role === 'coach' ? 'Gestión de equipo y entrenamientos' : 'Acceso básico'}
+                        </div>
+                      </div>
+                    </div>
                   </div>
+                  
                   <div className="user-actions">
                     <button 
-                      className="btn btn-icon-only" 
+                      className="btn-edit" 
                       title="Editar usuario"
                       onClick={() => handleEditUser(user)}
                     >
                       <i className="fas fa-edit"></i>
                     </button>
                     <button 
-                      className="btn btn-icon-only" 
+                      className="btn-delete delete-btn" 
                       title="Eliminar usuario"
                       onClick={() => handleDeleteUser(user.id || user._id)}
                     >

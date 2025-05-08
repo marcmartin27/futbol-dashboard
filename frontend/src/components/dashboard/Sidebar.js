@@ -69,6 +69,28 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 <span className="nav-text">Gestión de Usuarios</span>
               </a>
             </li>
+
+            <li className="nav-item">
+              <a 
+                href="#" 
+                className={`nav-link ${activePage === 'admin-tasks' ? 'active' : ''}`}
+                onClick={() => setActivePage('admin-tasks')}
+              >
+                <span className="nav-icon"><i className="fas fa-tasks"></i></span>
+                <span className="nav-text">Tareas por Entrenador</span>
+              </a>
+            </li>
+
+            <li className="nav-item">
+              <a 
+                href="#" 
+                className={`nav-link ${activePage === 'admin-sessions' ? 'active' : ''}`}
+                onClick={() => setActivePage('admin-sessions')}
+              >
+                <span className="nav-icon"><i className="fas fa-calendar-check"></i></span>
+                <span className="nav-text">Sesiones por Entrenador</span>
+              </a>
+            </li>
           </>
         )}
         

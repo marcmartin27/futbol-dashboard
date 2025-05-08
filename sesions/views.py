@@ -50,3 +50,15 @@ class SessionListCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AdminSessionListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Solo los administradores pueden ver todas las sesiones
+        if request.user.role != 'admin':
+            return Response({"error": "Acceso no autorizado"}, status=status.HTTP_403_FORBIDDEN)
+            
+        sessions = Session.objects.all()
+        serializer = SessionSerializer(sessions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
