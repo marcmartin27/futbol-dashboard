@@ -252,7 +252,7 @@ function Dashboard() {
         {user?.role === 'coach' && (
           <>
             {activePage === 'dashboard' && (
-              <CoachInicio />
+              <CoachInicio setActivePage={setActivePage} />
             )}
             
             {activePage === 'myteam' && (

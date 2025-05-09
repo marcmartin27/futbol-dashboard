@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authHeader } from '../../services/auth';
 
-function CoachInicio() {
+function CoachInicio({ setActivePage }) {
   const navigate = useNavigate();
   const [team, setTeam] = useState(null);
   const [playerCount, setPlayerCount] = useState(0);
@@ -151,11 +151,15 @@ function CoachInicio() {
     return new Date(dateString).toLocaleDateString('es-ES', options);
   };
 
-  // Navegación rápida a diferentes secciones
+  // Función para navegar a diferentes secciones
   const navigateTo = (section) => {
-    navigate(`/dashboard`);
-    // Esta función debería llamar a setActivePage que viene como prop del Dashboard
-    // O puedes usar eventos o un contexto global para comunicarte con Dashboard
+    // Cambia la página activa en el dashboard
+    setActivePage(section);
+  };
+
+  // Función específica para ir a la página de detalles del equipo
+  const goToTeamManagement = () => {
+    navigate(`/team/${user.team}`);
   };
 
   if (loading) {
@@ -202,7 +206,7 @@ function CoachInicio() {
               <h3>{playerCount}</h3>
               <p>Jugadores en plantilla</p>
             </div>
-            <div className="stat-action" onClick={() => navigate(`/team/${user.team}`)}>
+            <div className="stat-action" onClick={goToTeamManagement}>
               <i className="fas fa-arrow-right"></i>
             </div>
           </div>
@@ -215,7 +219,7 @@ function CoachInicio() {
               <h3>{recentTasks.length}</h3>
               <p>Tareas recientes</p>
             </div>
-            <div className="stat-action" onClick={() => navigate('/dashboard')}>
+            <div className="stat-action" onClick={() => navigateTo('tasks')}>
               <i className="fas fa-arrow-right"></i>
             </div>
           </div>
@@ -228,7 +232,7 @@ function CoachInicio() {
               <h3>{upcomingSessions.length}</h3>
               <p>Sesiones programadas</p>
             </div>
-            <div className="stat-action" onClick={() => navigate('/dashboard')}>
+            <div className="stat-action" onClick={() => navigateTo('sessions')}>
               <i className="fas fa-arrow-right"></i>
             </div>
           </div>
@@ -241,7 +245,7 @@ function CoachInicio() {
               <h3>Control</h3>
               <p>Minutaje de partidos</p>
             </div>
-            <div className="stat-action" onClick={() => navigate('/dashboard')}>
+            <div className="stat-action" onClick={() => navigateTo('minutes')}>
               <i className="fas fa-arrow-right"></i>
             </div>
           </div>
@@ -253,7 +257,7 @@ function CoachInicio() {
           <div className="dashboard-section">
             <div className="section-header">
               <h3><i className="fas fa-calendar-day"></i> Próximas Sesiones</h3>
-              <button className="view-all-btn" onClick={() => navigate('/dashboard')}>
+              <button className="view-all-btn" onClick={() => navigateTo('sessions')}>
                 Ver todas
               </button>
             </div>
@@ -292,7 +296,7 @@ function CoachInicio() {
           <div className="dashboard-section">
             <div className="section-header">
               <h3><i className="fas fa-tasks"></i> Tareas Recientes</h3>
-              <button className="view-all-btn" onClick={() => navigate('/dashboard')}>
+              <button className="view-all-btn" onClick={() => navigateTo('tasks')}>
                 Ver todas
               </button>
             </div>
@@ -330,7 +334,7 @@ function CoachInicio() {
           <div className="dashboard-section full-width">
             <div className="section-header">
               <h3><i className="fas fa-clipboard-check"></i> Asistencia Semanal</h3>
-              <button className="view-all-btn" onClick={() => navigate('/dashboard')}>
+              <button className="view-all-btn" onClick={() => navigateTo('attendance')}>
                 Gestionar
               </button>
             </div>
