@@ -20,7 +20,10 @@ class IsCoachOfTeamOrAdmin(BasePermission):
                 
             # Si hay team_id, verificar que sea su equipo
             if hasattr(request.user, 'team') and request.user.team:
-                return str(request.user.team.id) == team_id
+                # Convertir ambos a string y normalizar formato para comparación
+                user_team_id = str(request.user.team.id).strip()
+                url_team_id = str(team_id).strip()
+                return user_team_id == url_team_id
                 
         return False
         
@@ -39,6 +42,7 @@ class IsCoachOfTeamOrAdmin(BasePermission):
         elif type(obj).__name__ == 'Team':
             # Coaches can only access their assigned team
             if request.user.role == 'coach' and hasattr(request.user, 'team'):
-                return obj == request.user.team
+                # Comparar los IDs como strings para evitar problemas de tipo
+                return str(obj.id) == str(request.user.team.id)
                 
         return False

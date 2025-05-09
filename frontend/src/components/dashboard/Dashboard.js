@@ -12,6 +12,9 @@ import MinutesSection from './MinutesSection';
 import MySessions from './MySessions'; // Agrega esta línea junto a las demás importaciones
 import AdminTasksSection from './AdminTasksSection';
 import AdminSessionsSection from './AdminSessionsSection';
+import CoachInicio from './CoachInicio';
+
+
 
 
 
@@ -54,14 +57,14 @@ function Dashboard() {
     const userData = JSON.parse(localStorage.getItem('user'));
     setUser(userData);
     
+    // Asegurarnos que la página activa sea 'dashboard' al inicio
+    setActivePage('dashboard');
+    
     if (userData) {
       if (userData.role === 'admin') {
-        setActivePage('teams');
-        loadUsers();  // Si es admin, cargar usuarios al inicio
-      } else if (userData.role === 'coach') {
-        setActivePage('myteam');
+        // Cargar datos para admin...
       } else {
-        setActivePage('dashboard');
+        // Cargar datos para coach...
       }
     }
     
@@ -249,10 +252,7 @@ function Dashboard() {
         {user?.role === 'coach' && (
           <>
             {activePage === 'dashboard' && (
-              <div className="content-wrapper">
-                <h2>Dashboard de Entrenador</h2>
-                <p>Bienvenido al panel de control de entrenador</p>
-              </div>
+              <CoachInicio />
             )}
             
             {activePage === 'myteam' && (

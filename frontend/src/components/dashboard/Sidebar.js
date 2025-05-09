@@ -5,36 +5,32 @@ import { logout } from '../../services/auth';
 function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActivePage }) {
   const navigate = useNavigate();
   
-  // Depuración para verificar el usuario y su rol
-  console.log("Usuario en sidebar:", user);
-  
   const handleLogout = () => {
-    logout();
-    window.location.href = '/login';
+    localStorage.removeItem('user');
+    navigate('/login');
   };
 
-  // Determinar roles con verificación estricta
+  // Determinar roles
   const isAdmin = user && user.role === 'admin';
   const isCoach = user && user.role === 'coach';
   const isUser = user && (user.role === 'user' || !user.role);
   
-  // Mostrar en consola para depuración
-  console.log(`Roles: Admin=${isAdmin}, Coach=${isCoach}, User=${isUser}`);
+  // Función para manejar el clic en "Mi equipo" - navega directamente a gestión de plantilla
 
   return (
     <div className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
       <div className="brand">
         <div className="brand-logo">
-          <img src={require('../../assets/images/logo-small.png')} alt="Team Manager Logo" />
+          <i className="fas fa-futbol"></i>
         </div>
-        <div className="brand-text">Team Manager</div>
-        
+        <span className="brand-text">Team Manager</span>
         <div className="sidebar-toggle" onClick={toggleSidebar}>
-          <i className={`fas ${sidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'}`}></i>
+          <i className={`fas fa-chevron-${sidebarCollapsed ? 'right' : 'left'}`}></i>
         </div>
       </div>
       
       <ul className="nav-menu">
+        {/* Elementos comunes para todos los usuarios */}
         <li className="nav-item">
           <a 
             href="#" 
@@ -46,7 +42,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
           </a>
         </li>
         
-        {/* Opciones solo para administradores */}
+        {/* Elementos solo para admin */}
         {isAdmin && (
           <>
             <li className="nav-item">
@@ -55,21 +51,22 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 className={`nav-link ${activePage === 'teams' ? 'active' : ''}`}
                 onClick={() => setActivePage('teams')}
               >
-                <span className="nav-icon"><i className="fas fa-futbol"></i></span>
+                <span className="nav-icon"><i className="fas fa-users"></i></span>
                 <span className="nav-text">Equipos</span>
               </a>
             </li>
+            
             <li className="nav-item">
               <a 
                 href="#" 
                 className={`nav-link ${activePage === 'users' ? 'active' : ''}`}
                 onClick={() => setActivePage('users')}
               >
-                <span className="nav-icon"><i className="fas fa-users"></i></span>
-                <span className="nav-text">Gestión de Usuarios</span>
+                <span className="nav-icon"><i className="fas fa-user-cog"></i></span>
+                <span className="nav-text">Usuarios</span>
               </a>
             </li>
-
+            
             <li className="nav-item">
               <a 
                 href="#" 
@@ -77,35 +74,51 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 onClick={() => setActivePage('admin-tasks')}
               >
                 <span className="nav-icon"><i className="fas fa-tasks"></i></span>
-                <span className="nav-text">Tareas por Entrenador</span>
+                <span className="nav-text">Tareas</span>
               </a>
             </li>
-
+            
             <li className="nav-item">
               <a 
                 href="#" 
                 className={`nav-link ${activePage === 'admin-sessions' ? 'active' : ''}`}
                 onClick={() => setActivePage('admin-sessions')}
               >
-                <span className="nav-icon"><i className="fas fa-calendar-check"></i></span>
-                <span className="nav-text">Sesiones por Entrenador</span>
+                <span className="nav-icon"><i className="fas fa-calendar-alt"></i></span>
+                <span className="nav-text">Sesiones</span>
               </a>
             </li>
           </>
         )}
         
+        {/* Elementos solo para entrenadores */}
         {isCoach && (
           <>
             <li className="nav-item">
               <a 
                 href="#" 
+                className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
+                onClick={() => setActivePage('dashboard')}
+              >
+                <span className="nav-icon"><i className="fas fa-tachometer-alt"></i></span>
+                <span className="nav-text">Dashboard</span>
+              </a>
+            </li>
+            
+            <li className="nav-item">
+              <a 
+                href="#" 
                 className={`nav-link ${activePage === 'myteam' ? 'active' : ''}`}
-                onClick={() => setActivePage('myteam')}
+                onClick={() => {
+                  setActivePage('myteam');
+                  navigate(`/dashboard`);
+                }}
               >
                 <span className="nav-icon"><i className="fas fa-users"></i></span>
                 <span className="nav-text">Mi Equipo</span>
               </a>
             </li>
+            
             <li className="nav-item">
               <a 
                 href="#" 
@@ -113,58 +126,46 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 onClick={() => setActivePage('attendance')}
               >
                 <span className="nav-icon"><i className="fas fa-clipboard-check"></i></span>
-                <span className="nav-text">Control de Asistencia</span>
+                <span className="nav-text">Asistencia</span>
               </a>
             </li>
+            
             <li className="nav-item">
               <a 
-                href="#"
+                href="#" 
+                className={`nav-link ${activePage === 'tasks' ? 'active' : ''}`}
+                onClick={() => setActivePage('tasks')}
+              >
+                <span className="nav-icon"><i className="fas fa-clipboard-list"></i></span>
+                <span className="nav-text">Mis Tareas</span>
+              </a>
+            </li>
+            
+            <li className="nav-item">
+              <a 
+                href="#" 
+                className={`nav-link ${activePage === 'sessions' ? 'active' : ''}`}
+                onClick={() => setActivePage('sessions')}
+              >
+                <span className="nav-icon"><i className="fas fa-calendar-alt"></i></span>
+                <span className="nav-text">Sesiones</span>
+              </a>
+            </li>
+            
+            <li className="nav-item">
+              <a 
+                href="#" 
                 className={`nav-link ${activePage === 'minutes' ? 'active' : ''}`}
                 onClick={() => setActivePage('minutes')}
               >
                 <span className="nav-icon"><i className="fas fa-stopwatch"></i></span>
-                <span className="nav-text">Minutaje</span>
+                <span className="nav-text">Control de Minutaje</span>
               </a>
             </li>
-            <li className="nav-item">
-              <a 
-                href="#"
-                className={`nav-link ${activePage === 'tasks' ? 'active' : ''}`}
-                onClick={() => setActivePage('tasks')}
-              >
-                <span className="nav-icon"><i className="fas fa-tasks"></i></span>
-                <span className="nav-text">Mis Tareas</span>
-              </a>
-            </li>
-
-            <li className="nav-item">
-              <a 
-                href="#"
-                className={`nav-link ${activePage === 'sessions' ? 'active' : ''}`}
-                onClick={() => setActivePage('sessions')}
-              >
-                <span className="nav-icon"><i className="fas fa-stream"></i></span>
-                <span className="nav-text">Sesiones</span>
-              </a>
-            </li>
-
           </>
         )}
         
-        {/* Opciones para usuarios regulares */}
-        {isUser && (
-          <li className="nav-item">
-            <a 
-              href="#" 
-              className={`nav-link ${activePage === 'matches' ? 'active' : ''}`}
-              onClick={() => setActivePage('matches')}
-            >
-              <span className="nav-icon"><i className="fas fa-trophy"></i></span>
-              <span className="nav-text">Partidos</span>
-            </a>
-          </li>
-        )}
-        
+        {/* Elementos para configuración (todos los usuarios) */}
         <li className="nav-item">
           <a 
             href="#" 
@@ -176,24 +177,26 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
           </a>
         </li>
       </ul>
-
+      
       <div className="user-panel">
         <div className="user-avatar">
           <i className="fas fa-user"></i>
         </div>
         <div className="user-info">
-          <div className="user-name">{user?.first_name || user?.username}</div>
+          <div className="user-name">{user?.username}</div>
           <div className="user-role">
-            {user?.role === 'admin' ? 'Administrador' : 
-            user?.role === 'coach' ? 'Entrenador' : 'Usuario'}
+            {user?.role === 'admin' && 'Administrador'}
+            {user?.role === 'coach' && 'Entrenador'}
+            {(user?.role === 'user' || !user?.role) && 'Usuario'}
           </div>
         </div>
-        <button className="logout-btn" onClick={handleLogout} title="Cerrar sesión">
+        <button className="logout-btn" onClick={handleLogout}>
           <i className="fas fa-sign-out-alt"></i>
         </button>
       </div>
     </div>
   );
 }
+
 
 export default Sidebar;
