@@ -94,16 +94,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
         {/* Elementos solo para entrenadores */}
         {isCoach && (
           <>
-            <li className="nav-item">
-              <a 
-                href="#" 
-                className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
-                onClick={() => setActivePage('dashboard')}
-              >
-                <span className="nav-icon"><i className="fas fa-tachometer-alt"></i></span>
-                <span className="nav-text">Dashboard</span>
-              </a>
-            </li>
+
             
             <li className="nav-item">
               <a 
