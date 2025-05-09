@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { authHeader } from '../../services/auth';
 import '../../styles/main.scss';
+import '../../styles/_tasks.scss';
 
 function MyTasksSection() {
   const [tasks, setTasks] = useState([]);
@@ -15,6 +16,7 @@ function MyTasksSection() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [selectedTask, setSelectedTask] = useState(null);
 
   const loadTasks = async () => {
     try {
@@ -61,7 +63,6 @@ function MyTasksSection() {
       });
       
       if (!response.ok) {
-        // Opción: puedes capturar y loguear los errores devueltos por el backend para depuración
         const errorData = await response.json();
         throw new Error(`Error ${response.status}: ${JSON.stringify(errorData)}`);
       }
@@ -82,8 +83,12 @@ function MyTasksSection() {
     }
   };
 
+  const closeModal = () => {
+    setSelectedTask(null);
+  };
+
   return (
-    <div className="content-wrapper-parent"> {/* Añadir un contenedor padre */}
+    <div className="content-wrapper-parent">
       <h2>Mis Tareas</h2>
       {error && <div className="error-message">{error}</div>}
 
@@ -208,7 +213,12 @@ function MyTasksSection() {
               ) : (
                 <div className="task-grid">
                   {tasks.map(task => (
-                    <div key={task.id || task._id} className="task-card">
+                    <div 
+                      key={task.id || task._id} 
+                      className="task-card"
+                      onClick={() => setSelectedTask(task)}
+                      style={{cursor: 'pointer'}}
+                    >
                       <img src={task.image} alt={task.title} />
                       <h3>{task.title}</h3>
                       <p>{task.description}</p>
@@ -234,6 +244,39 @@ function MyTasksSection() {
           </div>
         </div>
       </div>
+
+      {/* Modal para mostrar detalles de la tarea seleccionada */}
+      {selectedTask && (
+        <div className="task-modal-overlay" onClick={closeModal}>
+          <div 
+            className="task-modal-content" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button className="task-modal-close" onClick={closeModal}>
+              &times;
+            </button>
+            <img 
+              src={selectedTask.image} 
+              alt={selectedTask.title} 
+              style={{width: '100%', borderRadius: '8px'}} 
+            />
+            <h2>{selectedTask.title}</h2>
+            <p>{selectedTask.description}</p>
+            <div className="task-properties" style={{marginTop: '16px'}}>
+              <div className="task-property">
+                <i className="fas fa-users"></i> {selectedTask.participants} participantes
+              </div>
+              <div className="task-property">
+                <i className="fas fa-clock"></i> {selectedTask.duration} min
+              </div>
+              <span className="task-category">{selectedTask.category}</span>
+            </div>
+            <div className="task-material" style={{marginTop: '16px'}}>
+              <i className="fas fa-toolbox"></i> Material: {selectedTask.material}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
