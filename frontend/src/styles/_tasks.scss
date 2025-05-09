@@ -1,10 +1,10 @@
-// Estilos para la sección de tareas de entrenamiento
-
 .tasks-layout {
     display: flex;
     gap: 24px;
     margin-top: 16px;
     align-items: stretch; // Esto hace que los elementos se estiren para tener la misma altura
+    height: calc(100vh - 20px);
+    overflow: hidden;
     
     @media (max-width: 1024px) {
       flex-direction: column; // Cambiar a columnas en pantallas pequeñas
@@ -24,6 +24,9 @@
       flex: 1; // La columna de tareas toma el espacio restante
       display: flex;
       flex-direction: column;
+      height: 100%;
+      max-height: 850px;
+      overflow: hidden;
     }
     
     // Aplicar a ambas columnas

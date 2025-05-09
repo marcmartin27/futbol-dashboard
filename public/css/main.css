@@ -2366,6 +2366,8 @@ body {
   gap: 24px;
   margin-top: 16px;
   align-items: stretch;
+  height: calc(100vh - 20px);
+  overflow: hidden;
 }
 @media (max-width: 1024px) {
   .tasks-layout {
@@ -2386,6 +2388,9 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  max-height: 850px;
+  overflow: hidden;
 }
 .tasks-layout .tasks-form-column .card, .tasks-layout .tasks-list-column .card {
   height: 100%;
