@@ -326,3 +326,18 @@
       max-height: 100%;
     }
   }
+
+  .content-wrapper-parent {
+    position: fixed;
+    top: 64px; // Altura del header
+    left: 240px; // Ancho del sidebar expandido
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    padding: 24px 24px 0 24px;
+    
+    // Ajustar cuando el sidebar está colapsado
+    .sidebar.collapsed + & {
+      left: 64px; // Ancho del sidebar colapsado
+    }
+  }

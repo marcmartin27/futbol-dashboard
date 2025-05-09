@@ -1,54 +1,82 @@
+.content-wrapper-parent {
+  position: fixed;
+  top: 64px; // Altura del header
+  left: 240px; // Ancho del sidebar expandido
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding: 24px 24px 0 24px;
+  
+  // Ajustar cuando el sidebar está colapsado
+  .sidebar.collapsed + & {
+    left: 64px; // Ancho del sidebar colapsado
+  }
+  
+  // Ajuste del encabezado
+  h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+  }
+  
+  // Ajuste para mensajes de error
+  .error-message {
+    margin-bottom: 16px;
+  }
+}
+
+// Modificar la clase tasks-layout
 .tasks-layout {
+  display: flex;
+  gap: 24px;
+  align-items: stretch;
+  height: calc(100% - 40px); // Ajustamos para el espacio del h2
+  overflow: hidden; // Evita scroll en el contenedor principal
+  position: relative; // Cambiamos de fixed a relative
+  
+  @media (max-width: 1024px) {
+    flex-direction: column;
+  }
+  
+  .tasks-form-column {
+    flex: 0 0 380px;
     display: flex;
-    gap: 24px;
-    margin-top: 16px;
-    align-items: stretch; // Esto hace que los elementos se estiren para tener la misma altura
-    height: calc(100vh - 20px);
-    overflow: hidden;
+    flex-direction: column;
+    overflow: hidden; // Evitar scroll en esta columna
     
     @media (max-width: 1024px) {
-      flex-direction: column; // Cambiar a columnas en pantallas pequeñas
+      flex: 0 0 auto;
     }
     
-    .tasks-form-column {
-      flex: 0 0 380px; // Mantener ancho fijo para el formulario
+    .card {
+      height: 100%;
+      overflow: hidden; // Asegurar que no haya scroll aquí
+    }
+  }
+  
+  .tasks-list-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden; // El contenedor padre evita scroll
+    
+    .card {
+      height: 100%;
       display: flex;
       flex-direction: column;
       
-      @media (max-width: 1024px) {
-        flex: 1 1 100%; // Ocupa todo el ancho en pantallas pequeñas
+      .card-header {
+        flex-shrink: 0; // Evita que el header se comprima
       }
-    }
-    
-    .tasks-list-column {
-      flex: 1; // La columna de tareas toma el espacio restante
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      max-height: 850px;
-      overflow: hidden;
-    }
-    
-    // Aplicar a ambas columnas
-    .tasks-form-column, .tasks-list-column {
-      .card {
-        height: 100%; // El card ocupa todo el alto disponible
-        display: flex;
-        flex-direction: column;
-        
-        .card-body {
-          flex: 1; // El cuerpo del card se expande para llenar el espacio
-          overflow: auto; // Añadir scroll si el contenido es muy largo
-        }
+      
+      .card-body {
+        flex: 1;
+        overflow-y: auto; // Permitir scroll SOLO en este contenedor
+        padding: 16px;
       }
-    }
-
-    .tasks-form-column{
-        .card{
-            height: 62%;
-        }
     }
   }
+}
   
   // Formulario de creación de tareas
   .task-form {

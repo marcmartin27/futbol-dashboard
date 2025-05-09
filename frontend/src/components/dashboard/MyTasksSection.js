@@ -83,7 +83,7 @@ function MyTasksSection() {
   };
 
   return (
-    <div className="content-wrapper">
+    <div className="content-wrapper-parent"> {/* Añadir un contenedor padre */}
       <h2>Mis Tareas</h2>
       {error && <div className="error-message">{error}</div>}
 
