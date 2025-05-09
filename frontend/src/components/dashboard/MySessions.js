@@ -20,6 +20,9 @@ function MySessions() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredTasks, setFilteredTasks] = useState([]);
   
+  // Estado para el modal de sesión
+  const [selectedSession, setSelectedSession] = useState(null);
+  
   // Usuario actual
   const user = JSON.parse(localStorage.getItem('user'));
   
@@ -364,7 +367,12 @@ function MySessions() {
               ) : sessions.length > 0 ? (
                 <div className="sessions-list">
                   {sessions.map(session => (
-                    <div key={session.id || session._id} className="session-card">
+                    <div 
+                      key={session.id || session._id} 
+                      className="session-card"
+                      onClick={() => setSelectedSession(session)}
+                      style={{cursor: 'pointer'}}
+                    >
                       <div className="session-header">
                         <div className="session-date">
                           <i className="far fa-calendar"></i>
@@ -449,6 +457,44 @@ function MySessions() {
           </div>
         </div>
       </div>
+      
+      {/* Modal para mostrar detalles de la sesión seleccionada */}
+      {selectedSession && (
+        <div className="session-modal-overlay" onClick={() => setSelectedSession(null)}>
+          <div 
+            className="session-modal-content" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button className="session-modal-close" onClick={() => setSelectedSession(null)}>
+              &times;
+            </button>
+            <h2>Detalles de la Sesión</h2>
+            <div className="session-modal-details">
+              <div className="modal-session-date">
+                <strong>Fecha:</strong> {formatDate(selectedSession.date)}
+              </div>
+              <div className="modal-tasks">
+                {selectedSession.tasks.map((taskId, index) => {
+                  const task = tasks.find(t => (t.id || t._id) === taskId);
+                  return task ? (
+                    <div key={index} className="modal-task-item">
+                      <h4>{index + 1}. {task.title}</h4>
+                      <p>{task.description}</p>
+                      <div className="modal-task-meta">
+                        <span className="modal-task-category">{task.category}</span> - <span className="modal-task-duration">{task.duration} min</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div key={index} className="modal-task-item">
+                      Tarea no encontrada
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

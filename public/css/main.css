@@ -4106,6 +4106,76 @@ body {
   color: #555;
 }
 
+/* Estilos para el modal de sesión */
+.session-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.session-modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  padding: 24px;
+  position: relative;
+}
+
+.session-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: #555;
+}
+
+.session-modal-details {
+  margin-top: 16px;
+}
+.session-modal-details .modal-session-date {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+.session-modal-details .modal-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.session-modal-details .modal-task-item {
+  width: 90%;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+.session-modal-details .modal-task-item h4 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+.session-modal-details .modal-task-item p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #333;
+}
+.session-modal-details .modal-task-item .modal-task-meta {
+  font-size: 13px;
+  color: #666;
+}
+
 .users-management-section {
   margin-bottom: 32px;
 }
