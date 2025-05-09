@@ -1,45 +1,749 @@
-// Estilos para el control de minutaje
-.match-selector {
-    margin: 20px 0;
+// Estilos avanzados para el módulo de minutaje
+
+// Contenedor principal con layout mejorado
+.minutes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  
+  // Título de sección con contador
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
     
-    .match-form {
-      display: flex;
-      gap: 16px;
-      align-items: flex-end;
-      flex-wrap: wrap;
+    h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+    
+    .match-counter {
+      display: inline-block;
+      padding: 4px 12px;
+      background-color: var(--primary-light);
+      color: white;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+  }
+  
+  // Panel de control superior
+  .control-panel {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      background-color: #f8fafc;
       
-      .form-group {
-        flex: 1;
-        min-width: 200px;
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
         
-        label {
-          display: block;
-          font-size: 14px;
-          font-weight: 600;
-          margin-bottom: 8px;
-          color: #555;
+        i {
+          margin-right: 10px;
+          color: var(--primary-color);
+        }
+      }
+    }
+    
+    .panel-body {
+      padding: 20px;
+    }
+  }
+  
+  // Filtros y creación
+  .match-controls {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    
+    .match-filter {
+      flex: 2;
+      min-width: 300px;
+      
+      .filter-title {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #374151;
+      }
+      
+      .filter-form {
+        display: flex;
+        gap: 16px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        
+        .filter-group {
+          flex: 1;
+          min-width: 180px;
+          
+          label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #4b5563;
+          }
+          
+          select, input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: white;
+            
+            &:focus {
+              border-color: var(--primary-color);
+              box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
+              outline: none;
+            }
+          }
         }
         
-        input {
-          width: 100%;
-          padding: 10px 14px;
-          border: 1px solid var(--border-color);
-          border-radius: 6px;
-          font-size: 14px;
-          transition: all 0.2s ease;
+        .filter-actions {
+          display: flex;
+          gap: 8px;
           
-          &:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
-            outline: none;
+          button {
+            height: 42px;
+            white-space: nowrap;
+            border-radius: 8px;
+            
+            i {
+              margin-right: 6px;
+            }
+          }
+        }
+      }
+    }
+    
+    .match-create {
+      flex: 1;
+      min-width: 280px;
+      
+      .create-title {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #374151;
+      }
+      
+      .create-form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        
+        .form-group {
+          flex: 1;
+          
+          label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #4b5563;
+          }
+          
+          input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            
+            &:focus {
+              border-color: var(--primary-color);
+              box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
+              outline: none;
+            }
+          }
+        }
+        
+        .create-button {
+          margin-top: 8px;
+          background-color: var(--primary-color);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          padding: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background-color 0.2s;
+          
+          &:hover {
+            background-color: var(--primary-dark);
+          }
+          
+          &:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+          }
+          
+          i {
+            margin-right: 8px;
+          }
+        }
+      }
+    }
+  }
+  
+  // Lista de partidos
+  .matches-list {
+    margin-top: 10px;
+    
+    .matches-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      
+      .match-card {
+        background-color: white;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+        
+        &:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        &.active {
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+        }
+        
+        .match-header {
+          padding: 16px;
+          background-color: #f8fafc;
+          border-bottom: 1px solid var(--border-color);
+          
+          .match-date {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            
+            i {
+              margin-right: 8px;
+              color: var(--primary-color);
+            }
+          }
+          
+          .match-title {
+            font-size: 16px;
+            color: #374151;
+          }
+        }
+        
+        .match-details {
+          padding: 16px;
+          
+          .player-stats {
+            display: flex;
+            justify-content: space-between;
+            
+            .stat-item {
+              text-align: center;
+              
+              .stat-value {
+                font-size: 18px;
+                font-weight: 700;
+                color: var(--primary-color);
+              }
+              
+              .stat-label {
+                font-size: 12px;
+                color: #6b7280;
+              }
+            }
+          }
+        }
+        
+        .match-actions {
+          padding: 12px 16px;
+          border-top: 1px solid var(--border-color);
+          background-color: #f8fafc;
+          display: flex;
+          justify-content: flex-end;
+          
+          button {
+            font-size: 13px;
+            padding: 8px 12px;
+            
+            i {
+              margin-right: 6px;
+              font-size: 12px;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Tabla de minutaje mejorada
+  .minutes-detail {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--border-color);
+    
+    .detail-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+      background-color: var(--primary-color);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      .match-info {
+        h3 {
+          margin: 0 0 8px 0;
+          font-size: 20px;
+          font-weight: 700;
+        }
+        
+        .match-meta {
+          display: flex;
+          gap: 16px;
+          
+          span {
+            display: flex;
+            align-items: center;
+            
+            i {
+              margin-right: 6px;
+              font-size: 14px;
+            }
           }
         }
       }
       
-      button {
-        height: 42px;
+      .match-summary {
+        display: flex;
+        gap: 16px;
+        
+        .summary-item {
+          background-color: rgba(255, 255, 255, 0.2);
+          padding: 8px 16px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          font-size: 14px;
+          
+          i {
+            margin-right: 8px;
+          }
+        }
+      }
+    }
+    
+    .minutes-table-container {
+      overflow-x: auto;
+      padding: 0 0 16px 0;
+      
+      .minutes-table {
+        width: 100%;
+        border-collapse: collapse;
+        
+        th, td {
+          padding: 12px 16px;
+          text-align: center;
+          border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+          background-color: #f8fafc;
+          font-weight: 600;
+          color: #374151;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+        }
+        
+        td {
+          vertical-align: middle;
+        }
+        
+        .player-column {
+          text-align: left;
+          min-width: 220px;
+          position: sticky;
+          left: 0;
+          background-color: white;
+          z-index: 5;
+          box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        th.player-column {
+          background-color: #f8fafc;
+          z-index: 15;
+        }
+        
+        tr:hover td {
+          background-color: #f1f5f9;
+        }
+        
+        tr:hover td.player-column {
+          background-color: #f1f5f9;
+        }
+      }
+    }
+    
+    .minutes-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #f8fafc;
+      
+      .footer-info {
+        color: #6b7280;
+        font-size: 14px;
+        
+        span {
+          margin-right: 16px;
+          display: inline-flex;
+          align-items: center;
+          
+          i {
+            margin-right: 6px;
+            color: var(--primary-color);
+          }
+        }
+      }
+      
+      .footer-actions {
+        display: flex;
+        gap: 12px;
+      }
+    }
+  }
+  
+  // Player info component
+  .player-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    .player-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    
+    .player-data {
+      .player-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #111827;
+        margin-bottom: 2px;
+      }
+      
+      .player-position {
+        font-size: 12px;
+        color: #6b7280;
         display: flex;
         align-items: center;
+        
+        .player-number {
+          background-color: #e5e7eb;
+          color: #4b5563;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 10px;
+          font-weight: 600;
+          margin-right: 6px;
+        }
+      }
+    }
+  }
+
+  // Componentes para minutaje
+  .minute-editor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    .minutes-toggle {
+      position: relative;
+      width: 44px;
+      height: 22px;
+      
+      input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
+        
+        &:checked + .toggle-slider {
+          background-color: var(--primary-color);
+        }
+        
+        &:checked + .toggle-slider:before {
+          transform: translateX(22px);
+        }
+      }
+      
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #e5e7eb;
+        transition: .3s;
+        border-radius: 22px;
+        
+        &:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 2px;
+          bottom: 2px;
+          background-color: white;
+          transition: .3s;
+          border-radius: 50%;
+        }
+      }
+    }
+    
+    .minutes-inputs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .minute-label {
+        font-size: 12px;
+        color: #6b7280;
+      }
+      
+      .minutes-input {
+        width: 50px;
+        text-align: center;
+        padding: 6px 4px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 13px;
+        
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        
+        -moz-appearance: textfield;
+        
+        &:focus {
+          border-color: var(--primary-color);
+          outline: none;
+        }
+        
+        &:disabled {
+          background-color: #f3f4f6;
+          color: #9ca3af;
+        }
+      }
+      
+      .minute-separator {
+        font-size: 14px;
+        color: #9ca3af;
+      }
+    }
+    
+    .minutes-total {
+      margin-left: 12px;
+      background-color: #f3f4f6;
+      color: #1f2937;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+  }
+  
+  // Estadísticas de minutaje
+  .minutes-stats {
+    margin-top: 32px;
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      
+      .stat-card {
+        background-color: white;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        transition: transform 0.2s;
+        
+        &:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+        
+        .stat-header {
+          padding: 16px;
+          border-bottom: 1px solid var(--border-color);
+          background-color: #f8fafc;
+          
+          h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            
+            i {
+              margin-right: 8px;
+              color: var(--primary-color);
+            }
+          }
+        }
+        
+        .stat-body {
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          
+          .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+          }
+          
+          .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 4px;
+          }
+          
+          // Para estadísticas con progreso
+          .progress-container {
+            width: 100%;
+            margin-top: 20px;
+            
+            .progress-label {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 6px;
+              
+              span {
+                font-size: 13px;
+                color: #4b5563;
+                
+                &:last-child {
+                  font-weight: 600;
+                }
+              }
+            }
+            
+            .progress-bar {
+              height: 8px;
+              width: 100%;
+              background-color: #e5e7eb;
+              border-radius: 4px;
+              overflow: hidden;
+              
+              .progress-fill {
+                height: 100%;
+                background-color: var(--primary-color);
+                transition: width 0.5s;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Estados de vacío y carga
+  .minutes-empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    background-color: white;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    
+    .icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 24px;
+      background-color: #f3f4f6;
+      color: #9ca3af;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    
+    .description {
+      max-width: 400px;
+      margin: 0 auto;
+      color: #6b7280;
+    }
+    
+    .action {
+      margin-top: 24px;
+      
+      button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        
+        &:hover {
+          background-color: var(--primary-dark);
+        }
         
         i {
           margin-right: 8px;
@@ -48,186 +752,122 @@
     }
   }
   
-  .minutes-table {
-    width: 100%;
-    overflow-x: auto;
+  .minutes-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 0;
     
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      
-      th, td {
-        padding: 12px 16px;
-        text-align: center;
-        border-bottom: 1px solid var(--border-color);
-      }
-      
-      th {
-        background-color: var(--background-light);
-        font-weight: 600;
-        color: var(--primary-dark);
-      }
-      
-      .player-column {
-        text-align: left;
-        min-width: 200px;
-      }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(63, 81, 181, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   }
   
-  .minutes-checkbox {
-    position: relative;
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    
-    input {
-      position: absolute;
-      opacity: 0;
-      cursor: pointer;
-      height: 0;
-      width: 0;
+  @media (max-width: 768px) {
+    .control-panel .panel-body {
+      padding: 16px;
     }
     
-    .checkmark {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 24px;
-      width: 24px;
-      background-color: #eee;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
-    
-    &:hover .checkmark {
-      background-color: #ccc;
-    }
-    
-    input:checked ~ .checkmark {
-      background-color: var(--primary-color);
-    }
-    
-    .checkmark:after {
-      content: "";
-      position: absolute;
-      display: none;
-    }
-    
-    input:checked ~ .checkmark:after {
-      display: block;
-    }
-    
-    .checkmark:after {
-      left: 9px;
-      top: 5px;
-      width: 6px;
-      height: 10px;
-      border: solid white;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
-    }
-  }
-  
-  .minutes-input {
-    // Quita las flechas en Chrome, Safari, Edge, Opera
-    &::-webkit-outer-spin-button,
-    &::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    
-    // Quita las flechas en Firefox
-    -moz-appearance: textfield;
-    
-    // Mantén el resto de estilos existentes
-    width: 60px;
-    padding: 8px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 14px;
-    text-align: center;
-    
-    &:focus {
-      border-color: var(--primary-color);
-      outline: none;
-    }
-    
-    &:disabled {
-      background-color: #f5f5f5;
-      color: #999;
-    }
-  }
-  
-  .minutes-stats {
-    margin-top: 32px;
-    
-    .stats-summary {
-      display: flex;
-      justify-content: space-around;
+    .match-controls {
+      flex-direction: column;
       gap: 20px;
-      flex-wrap: wrap;
+    }
+    
+    .minutes-detail .detail-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+  }
+}
+
+
+// Añadir estos estilos para el buscador de partidos
+.match-filter {
+  flex: 2;
+  min-width: 300px;
+  position: relative;
+  
+  .filter-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #374151;
+  }
+  
+  .search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    
+    .search-input-group {
+      flex: 1;
       
-      .stat-item {
-        text-align: center;
-        min-width: 120px;
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #4b5563;
+      }
+      
+      .search-input-wrapper {
+        position: relative;
         
-        .stat-value {
-          font-size: 32px;
-          font-weight: 700;
-          color: var(--primary-color);
+        input {
+          width: 100%;
+          padding: 10px 14px 10px 36px;
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          font-size: 14px;
+          
+          &:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
+            outline: none;
+          }
         }
         
-        .stat-label {
-          color: #666;
-          font-size: 14px;
-          margin-top: 4px;
+        .search-icon {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #9ca3af;
         }
       }
     }
-  }// Añadir después de la clase .minutes-input
-  .minutes-display {
-    display: inline-block;
-    width: 60px;
-    padding: 8px 12px;
-    background-color: #f8f9fa;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 600;
-    text-align: center;
-    color: var(--primary-dark);
-  }
-
-  .matches-filters {
-    margin-bottom: 20px;
     
-    .filter-section {
+    .date-range-group {
       display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      align-items: flex-end;
+      gap: 12px;
       
-      .filter-group {
+      .date-input {
         flex: 1;
-        min-width: 200px;
         
         label {
           display: block;
-          font-size: 14px;
+          font-size: 13px;
           font-weight: 600;
-          margin-bottom: 8px;
-          color: #555;
+          margin-bottom: 6px;
+          color: #4b5563;
         }
         
         input {
           width: 100%;
           padding: 10px 14px;
           border: 1px solid var(--border-color);
-          border-radius: 6px;
+          border-radius: 8px;
           font-size: 14px;
-          transition: all 0.2s ease;
           
           &:focus {
             border-color: var(--primary-color);
@@ -236,82 +876,226 @@
           }
         }
       }
-      
-      .filter-dates {
-        display: flex;
-        gap: 12px;
-        flex: 2;
-        
-        @media (max-width: 768px) {
-          flex-direction: column;
-        }
-      }
     }
-  }
-  
-  .matches-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 16px;
     
-    .match-item {
-      background-color: var(--background-light);
-      border-radius: 8px;
-      padding: 16px;
+    .search-actions {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: all 0.2s ease;
+      gap: 8px;
       
-      &:hover {
-        background-color: #e8eaf6;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      }
-      
-      .match-date {
-        font-weight: 600;
-        color: var(--primary-color);
-        background-color: rgba(63, 81, 181, 0.1);
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 14px;
-      }
-      
-      .match-name {
-        font-weight: 500;
-        font-size: 16px;
-        flex: 1;
-        margin-left: 16px;
-      }
-      
-      .match-players {
-        color: #666;
-        font-size: 14px;
+      button {
+        height: 42px;
+        white-space: nowrap;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         
         i {
           margin-right: 6px;
-          color: var(--primary-color);
         }
+      }
+      
+      .search-btn {
+        flex: 1;
       }
     }
   }
   
-  // Responsive ajustments
-  @media (max-width: 768px) {
-    .matches-filters .filter-section {
-      flex-direction: column;
+  // Resultados de búsqueda
+  .search-results {
+    margin-top: 16px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    
+    .results-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      background-color: #f8fafc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      h5 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #4b5563;
+      }
+      
+      .close-results {
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        
+        &:hover {
+          color: #4b5563;
+        }
+        
+        i {
+          font-size: 14px;
+        }
+      }
     }
     
-    .match-item {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
+    .results-list {
+      max-height: 300px;
+      overflow-y: auto;
       
-      .match-name {
-        margin-left: 0;
+      .result-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: background-color 0.2s;
+        
+        &:hover {
+          background-color: #f1f5f9;
+        }
+        
+        &.active {
+          background-color: #eff6ff;
+          border-left: 3px solid var(--primary-color);
+        }
+        
+        .result-date {
+          font-size: 12px;
+          color: #6b7280;
+          display: flex;
+          align-items: center;
+          
+          i {
+            margin-right: 6px;
+            color: var(--primary-color);
+          }
+        }
+        
+        .result-name {
+          font-weight: 600;
+          font-size: 15px;
+          color: #1f2937;
+          margin: 4px 0;
+        }
+        
+        .result-count {
+          font-size: 12px;
+          color: #6b7280;
+          display: flex;
+          align-items: center;
+          
+          i {
+            margin-right: 6px;
+            color: #6b7280;
+          }
+        }
+      }
+    }
+    
+    .no-results {
+      padding: 32px 16px;
+      text-align: center;
+      color: #6b7280;
+      
+      i {
+        font-size: 24px;
+        margin-bottom: 12px;
+        color: #9ca3af;
+      }
+      
+      p {
+        margin: 0;
+        font-size: 14px;
       }
     }
   }
+}
+
+// Estilos para el partido seleccionado
+.selected-match-info {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #eff6ff;
+  border-radius: 8px;
+  border: 1px solid #dbeafe;
+  display: flex;
+  align-items: center;
+  
+  .match-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    
+    i {
+      font-size: 16px;
+    }
+  }
+  
+  .match-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    
+    .match-name {
+      font-weight: 600;
+      font-size: 16px;
+      color: #1f2937;
+    }
+    
+    .match-date {
+      font-size: 13px;
+      color: #6b7280;
+    }
+  }
+  
+  .change-match-btn {
+    background: none;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    
+    &:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    i {
+      margin-right: 6px;
+    }
+  }
+}
+
+// Ajusta los media queries para asegurar responsividad
+@media (max-width: 768px) {
+  .match-filter .search-form {
+    .date-range-group {
+      flex-direction: column;
+    }
+    
+    .search-actions {
+      flex-direction: column;
+    }
+  }
+  
+  .selected-match-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+    
+    .match-badge {
+      margin-right: 0;
+    }
+  }
+}

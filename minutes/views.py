@@ -5,6 +5,8 @@ from .models import PlayerMinutes
 from .serializers import PlayerMinutesSerializer
 from teams.models import Team, Player
 from teams.permissions import IsCoachOfTeamOrAdmin
+import traceback
+from datetime import datetime
 
 class PlayerMinutesView(APIView):
     permission_classes = [IsCoachOfTeamOrAdmin]
@@ -25,21 +27,34 @@ class PlayerMinutesView(APIView):
             
             # Si se proporcionaron fecha y nombre del partido, buscar registros existentes
             if match_date and match_name:
-                minutes_records = PlayerMinutes.objects(team=team, match_date=match_date, match_name=match_name)
+                try:
+                    match_date_obj = datetime.strptime(match_date, '%Y-%m-%d').date()
+                except ValueError:
+                    return Response(
+                        {"error": "Formato de fecha inválido. Usar YYYY-MM-DD"}, 
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                    
+                minutes_records = PlayerMinutes.objects(
+                    team=team, 
+                    match_date=match_date_obj, 
+                    match_name=match_name
+                )
                 
                 # Crear automáticamente si no existen y se solicita
                 if not minutes_records and request.query_params.get('auto_create') == 'true':
                     minutes_records = []
                     for player in players:
+                        # Crear registro para cada jugador
                         record = PlayerMinutes(
                             player=player,
-                            team=team,
-                            match_date=match_date,
+                            match_date=match_date_obj,
                             match_name=match_name,
+                            team=team,
                             is_starter=False,
                             minutes_played=0,
                             entry_minute=None,
-                            exit_minute=None
+                            exit_minute=90
                         )
                         record.save()
                         minutes_records.append(record)
@@ -52,6 +67,8 @@ class PlayerMinutesView(APIView):
         except Team.DoesNotExist:
             return Response({"error": "Equipo no encontrado"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
+            traceback_str = traceback.format_exc()
+            print(f"Error detallado: {traceback_str}")
             return Response(
                 {"error": f"Error del servidor: {str(e)}"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -91,7 +108,6 @@ class PlayerMinutesView(APIView):
         except Team.DoesNotExist:
             return Response({"error": "Equipo no encontrado"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            import traceback
             traceback_str = traceback.format_exc()
             print(f"Error detallado: {traceback_str}")
             return Response(
@@ -113,10 +129,16 @@ class PlayerMinutesView(APIView):
                     player_minute.entry_minute = 0
             
             if 'entry_minute' in request.data:
-                player_minute.entry_minute = request.data.get('entry_minute')
+                entry_minute = request.data.get('entry_minute')
+                # Validar valores
+                if isinstance(entry_minute, (int, str)) and (isinstance(entry_minute, int) or entry_minute.isdigit()):
+                    player_minute.entry_minute = int(entry_minute)
             
             if 'exit_minute' in request.data:
-                player_minute.exit_minute = request.data.get('exit_minute')
+                exit_minute = request.data.get('exit_minute')
+                # Validar valores
+                if isinstance(exit_minute, (int, str)) and (isinstance(exit_minute, int) or exit_minute.isdigit()):
+                    player_minute.exit_minute = int(exit_minute)
             
             # Calcular minutos jugados automáticamente
             entry = player_minute.entry_minute or 0
@@ -136,6 +158,8 @@ class PlayerMinutesView(APIView):
         except PlayerMinutes.DoesNotExist:
             return Response({"error": "Registro de minutos no encontrado"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
+            traceback_str = traceback.format_exc()
+            print(f"Error detallado: {traceback_str}")
             return Response(
                 {"error": f"Error del servidor: {str(e)}"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
