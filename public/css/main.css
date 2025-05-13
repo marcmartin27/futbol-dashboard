@@ -5158,8 +5158,10 @@ body {
   margin-bottom: 4px;
 }
 .user-item .user-header .user-header-info .user-email {
-  font-size: 14px;
-  color: #64748b;
+  max-width: 130px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .user-item .user-header .user-role-badge {
   display: inline-block;

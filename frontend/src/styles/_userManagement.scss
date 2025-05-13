@@ -194,8 +194,10 @@
         }
         
         .user-email {
-          font-size: 14px;
-          color: #64748b;
+          max-width: 130px; // Ajusta el valor segun el diseño ideal
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
       
