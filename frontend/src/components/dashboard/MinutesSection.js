@@ -630,7 +630,7 @@ function MinutesSection() {
           </div>
         </div>
         
-        {/* Si no hay partidos */}
+        {/* Si no hay partidoss */}
         {!loading && matches.length === 0 && !selectedMatch && (
           <div className="minutes-empty-state">
             <div className="icon">
