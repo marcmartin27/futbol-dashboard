@@ -71,6 +71,52 @@ class AdminSessionListView(APIView):
         if request.user.role != 'admin':
             return Response({"error": "Acceso no autorizado"}, status=status.HTTP_403_FORBIDDEN)
             
-        sessions = Session.objects.all()
-        serializer = SessionSerializer(sessions, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            # Obtener parámetro coach para filtrar por entrenador
+            coach_id = request.query_params.get('coach')
+            
+            if coach_id:
+                sessions = Session.objects(owner=coach_id)
+            else:
+                sessions = Session.objects.all()
+                
+            serializer = SessionSerializer(sessions, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            traceback_str = traceback.format_exc()
+            print(f"Error en AdminSessionListView: {traceback_str}")
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+class SessionDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, session_id):
+        try:
+            # Verificar permisos: solo el propietario o admin pueden ver la sesión
+            session = Session.objects.get(id=session_id)
+            
+            if request.user.role != 'admin' and str(request.user.id) != str(session.owner.id):
+                return Response(
+                    {"error": "No tienes permiso para ver esta sesión"}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+                
+            serializer = SessionSerializer(session)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        except Session.DoesNotExist:
+            return Response(
+                {"error": "Sesión no encontrada"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            import traceback
+            traceback_str = traceback.format_exc()
+            print(f"Error en SessionDetailView: {traceback_str}")
+            return Response(
+                {"error": f"Error del servidor: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { authHeader } from '../../services/auth';
-import { getTeamPlayers, createPlayer, deletePlayer } from '../../services/playerService';
-import '../../styles/_players.scss';
 import PlayerDetailModal from './PlayerDetailModal';
 
 const POSITIONS = [
@@ -75,8 +73,9 @@ function TeamDetailPage() {
     const loadTeamDetails = async () => {
       try {
         setLoading(true);
+        setError('');
         
-        // Cargar detalles del equipo
+        // Cargar datos del equipo
         const teamResponse = await fetch(`http://localhost:8000/api/teams/${teamId}/`, {
           headers: authHeader()
         });
@@ -94,7 +93,6 @@ function TeamDetailPage() {
         
       } catch (err) {
         setError(`Error: ${err.message}`);
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -102,6 +100,18 @@ function TeamDetailPage() {
     
     loadTeamDetails();
   }, [teamId]);
+
+  const getTeamPlayers = async (teamId) => {
+    const playersResponse = await fetch(`http://localhost:8000/api/teams/${teamId}/players/`, {
+      headers: authHeader()
+    });
+    
+    if (!playersResponse.ok) {
+      throw new Error(`Error ${playersResponse.status}: No se pudieron cargar los jugadores`);
+    }
+    
+    return await playersResponse.json();
+  };
 
   const handlePlayerChange = e => {
     const { name, value } = e.target;
@@ -114,19 +124,21 @@ function TeamDetailPage() {
     
     try {
       setLoading(true);
+      const response = await fetch(`http://localhost:8000/api/teams/${teamId}/players/create/`, {
+        method: 'POST',
+        headers: {
+          ...authHeader(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(playerForm)
+      });
       
-      // Convertir campos numéricos
-      const playerData = {
-        ...playerForm,
-        number: parseInt(playerForm.number),
-        age: parseInt(playerForm.age),
-        height: playerForm.height ? parseInt(playerForm.height) : undefined,
-        weight: playerForm.weight ? parseInt(playerForm.weight) : undefined
-      };
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Error ${response.status}`);
+      }
       
-      await createPlayer(teamId, playerData);
-      
-      // Limpiar formulario
+      // Limpiar el formulario y recargar jugadores
       setPlayerForm({
         name: '',
         last_name: '',
@@ -139,9 +151,8 @@ function TeamDetailPage() {
         photo_url: ''
       });
       
-      // Recargar lista de jugadores
-      const updatedPlayers = await getTeamPlayers(teamId);
-      setPlayers(updatedPlayers);
+      const playersData = await getTeamPlayers(teamId);
+      setPlayers(playersData);
       
     } catch (err) {
       setError(`Error al crear jugador: ${err.message}`);
@@ -151,21 +162,25 @@ function TeamDetailPage() {
   };
 
   const handleDeletePlayer = async (playerId, e) => {
-    if (e) {
-      e.stopPropagation(); // Prevenir que el click se propague al card
-    }
+    e.stopPropagation();
     
-    if (!window.confirm('¿Estás seguro de eliminar este jugador?')) {
+    if (!window.confirm("¿Estás seguro de eliminar este jugador?")) {
       return;
     }
     
     try {
       setLoading(true);
-      await deletePlayer(playerId);
+      const response = await fetch(`http://localhost:8000/api/players/${playerId}/`, {
+        method: 'DELETE',
+        headers: authHeader()
+      });
       
-      // Actualizar la lista de jugadores después de eliminar
-      const updatedPlayers = await getTeamPlayers(teamId);
-      setPlayers(updatedPlayers);
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: No se pudo eliminar el jugador`);
+      }
+      
+      // Actualizar la lista de jugadores
+      setPlayers(players.filter(player => (player.id || player._id) !== playerId));
       
     } catch (err) {
       setError(`Error al eliminar jugador: ${err.message}`);
@@ -176,7 +191,7 @@ function TeamDetailPage() {
 
   const getPositionColor = (positionCode) => {
     const position = POSITIONS.find(p => p.value === positionCode);
-    return position ? position.color : '#666';
+    return position ? position.color : '#777';
   };
 
   const getPositionLabel = (positionCode) => {
@@ -190,731 +205,329 @@ function TeamDetailPage() {
 
   return (
     <div className="content-wrapper">
-      <div className="team-header">
-        <button className="btn btn-secondary" onClick={() => navigate('/dashboard')}>
-          <i className="fas fa-arrow-left btn-icon"></i>
-          Volver a Equipos
-        </button>
-        
-        {team && (
-          <div className="team-title">
-            <div className="team-badge">
-              {team.name.split(' ').map(word => word[0]).join('').toUpperCase()}
-            </div>
-            <h1>{team.name}</h1>
-            <div className="team-meta">
-              <span><i className="fas fa-map-marker-alt"></i> {team.city}</span>
-              <span><i className="fas fa-calendar"></i> Fundado en {team.founded}</span>
-            </div>
-          </div>
-        )}
-      </div>
-      
       {error && <div className="error-message">{error}</div>}
       
-      {team && !loading && players.length > 0 && (
-        <div className="football-field-container">
-          <div className="football-field">
-            {/* Delanteros */}
-            <div className="field-row">
-              <div className="field-position">
-                <span className="position-label">Delanteros</span>
-                {groupedPlayers['DEL']?.map(player => (
-                  <div 
-                    key={player.id} 
-                    className="player-dot" 
-                    style={{backgroundColor: getPositionColor('DEL')}}
-                    onClick={() => handlePlayerClick(player)}
-                  >
-                    {player.number}
-                    <div className="player-tooltip">
-                      {player.name} {player.last_name}
-                    </div>
-                  </div>
-                ))}
-                {groupedPlayers['SD']?.map(player => (
-                  <div 
-                    key={player.id} 
-                    className="player-dot" 
-                    style={{backgroundColor: getPositionColor('SD')}}
-                    onClick={() => handlePlayerClick(player)}
-                  >
-                    {player.number}
-                    <div className="player-tooltip">
-                      {player.name} {player.last_name}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Extremos y Mediapuntas */}
-            <div className="field-row">
-              <div className="field-position">
-                <span className="position-label">Extremos y Mediapuntas</span>
-                {groupedPlayers['EI']?.map(player => (
-                  <div 
-                    key={player.id} 
-                    className="player-dot" 
-                    style={{backgroundColor: getPositionColor('EI')}}
-                    onClick={() => handlePlayerClick(player)}
-                  >
-                    {player.number}
-                    <div className="player-tooltip">
-                      {player.name} {player.last_name}
-                    </div>
-                  </div>
-                ))}
-                {groupedPlayers['MCO']?.map(player => (
-                  <div 
-                    key={player.id} 
-                    className="player-dot" 
-                    style={{backgroundColor: getPositionColor('MCO')}}
-                    onClick={() => handlePlayerClick(player)}
-                  >
-                    {player.number}
-                    <div className="player-tooltip">
-                      {player.name} {player.last_name}
-                    </div>
-                  </div>
-                ))}
-                {groupedPlayers['ED']?.map(player => (
-                  <div 
-                    key={player.id} 
-                    className="player-dot" 
-                    style={{backgroundColor: getPositionColor('ED')}}
-                    onClick={() => handlePlayerClick(player)}
-                  >
-                    {player.number}
-                    <div className="player-tooltip">
-                      {player.name} {player.last_name}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Centrocampistas */}
-            <div className="field-row">
-              <div className="field-position">
-                <span className="position-label">Centrocampistas</span>
-                {groupedPlayers['MCD']?.map(player => (
-                  <div 
-                    key={player.id} 
-                    className="player-dot" 
-                    style={{backgroundColor: getPositionColor('MCD')}}
-                    onClick={() => handlePlayerClick(player)}
-                  >
-                    {player.number}
-                    <div className="player-tooltip">
-                      {player.name} {player.last_name}
-                    </div>
-                  </div>
-                ))}
-                {groupedPlayers['MC']?.map(player => (
-                  <div 
-                    key={player.id} 
-                    className="player-dot" 
-                    style={{backgroundColor: getPositionColor('MC')}}
-                    onClick={() => handlePlayerClick(player)}
-                  >
-                    {player.number}
-                    <div className="player-tooltip">
-                      {player.name} {player.last_name}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Defensas */}
-            <div className="field-row">
-              <div className="field-position">
-                <span className="position-label">Defensas</span>
-                {groupedPlayers['LTI']?.map(player => (
-                  <div 
-                    key={player.id} 
-                    className="player-dot" 
-                    style={{backgroundColor: getPositionColor('LTI')}}
-                    onClick={() => handlePlayerClick(player)}
-                  >
-                    {player.number}
-                    <div className="player-tooltip">
-                      {player.name} {player.last_name}
-                    </div>
-                  </div>
-                ))}
-                {groupedPlayers['DEF']?.map(player => (
-                  <div 
-                    key={player.id} 
-                    className="player-dot" 
-                    style={{backgroundColor: getPositionColor('DEF')}}
-                    onClick={() => handlePlayerClick(player)}
-                  >
-                    {player.number}
-                    <div className="player-tooltip">
-                      {player.name} {player.last_name}
-                    </div>
-                  </div>
-                ))}
-                {groupedPlayers['LTD']?.map(player => (
-                  <div 
-                    key={player.id} 
-                    className="player-dot" 
-                    style={{backgroundColor: getPositionColor('LTD')}}
-                    onClick={() => handlePlayerClick(player)}
-                  >
-                    {player.number}
-                    <div className="player-tooltip">
-                      {player.name} {player.last_name}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* Cabecera del equipo */}
+      <div className="team-header">
+        <div className="team-badge">
+          {team.name.split(' ').map(word => word[0]).join('').toUpperCase()}
+        </div>
+        <div className="team-title">
+          <h1>{team.name}</h1>
+          <div className="team-meta">
+            <span><i className="fas fa-map-marker-alt"></i> {team.city}</span>
+            <span><i className="fas fa-calendar"></i> Fundado en {team.founded}</span>
           </div>
         </div>
-      )}
+      </div>
       
+      {/* Dashboard del equipo */}
       <div className="team-dashboard">
-        <div className="card player-form-card">
+        {/* Formulario de creación (en la parte superior) */}
+        <div className="player-form-card">
           <div className="card-header">
-            <h2 className="card-title">Añadir Jugador</h2>
+            <h2>Añadir Nuevo Jugador</h2>
           </div>
           <div className="card-body">
-            <div className="form-help-text">
-              Completa todos los campos para añadir un nuevo jugador a la plantilla del equipo.
-            </div>
-            
             <form className="player-form" onSubmit={handlePlayerSubmit}>
-              <div className="form-row">
-                <div className="form-control">
-                  <label>Nombre</label>
-                  <input 
-                    name="name" 
-                    value={playerForm.name} 
-                    onChange={handlePlayerChange} 
-                    placeholder="Nombre" 
-                    required 
-                  />
-                </div>
-                
-                <div className="form-control">
-                  <label>Apellido</label>
-                  <input 
-                    name="last_name" 
-                    value={playerForm.last_name} 
-                    onChange={handlePlayerChange} 
-                    placeholder="Apellido" 
-                    required 
-                  />
-                </div>
+              <div className="form-control">
+                <label htmlFor="name">Nombre</label>
+                <input
+                  id="name"
+                  name="name"
+                  value={playerForm.name}
+                  onChange={handlePlayerChange}
+                  required
+                />
               </div>
               
-              <div className="form-row">
-                <div className="form-control">
-                  <label>Dorsal</label>
-                  <input 
-                    name="number" 
-                    type="number" 
-                    min="1"
-                    max="99"
-                    value={playerForm.number} 
-                    onChange={handlePlayerChange} 
-                    placeholder="Ej: 10" 
-                    required 
-                  />
-                </div>
-                
-                <div className="form-control">
-                  <label>Posición</label>
-                  <select 
-                    name="position" 
-                    value={playerForm.position} 
-                    onChange={handlePlayerChange} 
-                    required
-                  >
-                    <option value="">Seleccionar posición</option>
-                    {POSITIONS.map(pos => (
-                      <option key={pos.value} value={pos.value}>
-                        {pos.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="form-control">
-                  <label>Edad</label>
-                  <input 
-                    name="age" 
-                    type="number" 
-                    min="16"
-                    max="50"
-                    value={playerForm.age} 
-                    onChange={handlePlayerChange} 
-                    placeholder="Edad" 
-                    required 
-                  />
-                </div>
+              <div className="form-control">
+                <label htmlFor="last_name">Apellido</label>
+                <input
+                  id="last_name"
+                  name="last_name"
+                  value={playerForm.last_name}
+                  onChange={handlePlayerChange}
+                  required
+                />
               </div>
               
-              <div className="form-row">
-                <div className="form-control">
-                  <label>Nacionalidad</label>
-                  <input 
-                    name="nationality" 
-                    value={playerForm.nationality} 
-                    onChange={handlePlayerChange} 
-                    placeholder="Ej: España" 
-                    required 
-                  />
-                </div>
-                
-                <div className="form-control">
-                  <label>Altura (cm)</label>
-                  <input 
-                    name="height" 
-                    type="number" 
-                    value={playerForm.height} 
-                    onChange={handlePlayerChange} 
-                    placeholder="Ej: 180" 
-                  />
-                </div>
-                
-                <div className="form-control">
-                  <label>Peso (kg)</label>
-                  <input 
-                    name="weight" 
-                    type="number" 
-                    value={playerForm.weight} 
-                    onChange={handlePlayerChange} 
-                    placeholder="Ej: 75" 
-                  />
-                </div>
+              <div className="form-control">
+                <label htmlFor="number">Dorsal</label>
+                <input
+                  id="number"
+                  name="number"
+                  type="number"
+                  min="1"
+                  max="99"
+                  value={playerForm.number}
+                  onChange={handlePlayerChange}
+                  required
+                />
               </div>
               
-              <div className="form-row">
-                <div className="form-control">
-                  <label>URL Foto (opcional)</label>
-                  <input 
-                    name="photo_url" 
-                    value={playerForm.photo_url} 
-                    onChange={handlePlayerChange} 
-                    placeholder="https://ejemplo.com/foto.jpg" 
-                  />
-                </div>
-                
-                <button 
-                  type="submit" 
-                  className="btn btn-primary"
-                  disabled={loading}
+              <div className="form-control">
+                <label htmlFor="position">Posición</label>
+                <select
+                  id="position"
+                  name="position"
+                  value={playerForm.position}
+                  onChange={handlePlayerChange}
+                  required
                 >
-                  <i className="fas fa-plus btn-icon"></i>
-                  {loading ? 'Añadiendo...' : 'Añadir Jugador'}
-                </button>
+                  <option value="">Seleccionar posición</option>
+                  {POSITIONS.map(pos => (
+                    <option key={pos.value} value={pos.value}>
+                      {pos.label}
+                    </option>
+                  ))}
+                </select>
               </div>
+              
+              <div className="form-control">
+                <label htmlFor="age">Edad</label>
+                <input
+                  id="age"
+                  name="age"
+                  type="number"
+                  min="16"
+                  max="50"
+                  value={playerForm.age}
+                  onChange={handlePlayerChange}
+                  required
+                />
+              </div>
+              
+              <div className="form-control">
+                <label htmlFor="nationality">Nacionalidad</label>
+                <input
+                  id="nationality"
+                  name="nationality"
+                  value={playerForm.nationality}
+                  onChange={handlePlayerChange}
+                  required
+                />
+              </div>
+              
+              <div className="form-control">
+                <label htmlFor="height">Altura (cm)</label>
+                <input
+                  id="height"
+                  name="height"
+                  type="number"
+                  min="150"
+                  max="220"
+                  value={playerForm.height}
+                  onChange={handlePlayerChange}
+                />
+              </div>
+              
+              <div className="form-control">
+                <label htmlFor="weight">Peso (kg)</label>
+                <input
+                  id="weight"
+                  name="weight"
+                  type="number"
+                  min="50"
+                  max="120"
+                  value={playerForm.weight}
+                  onChange={handlePlayerChange}
+                />
+              </div>
+              
+              <div className="form-control">
+                <label htmlFor="photo_url">URL de foto</label>
+                <input
+                  id="photo_url"
+                  name="photo_url"
+                  type="url"
+                  value={playerForm.photo_url}
+                  onChange={handlePlayerChange}
+                  placeholder="https://ejemplo.com/foto.jpg"
+                />
+              </div>
+              
+              <button
+                type="submit"
+                className="btn"
+                disabled={loading}
+              >
+                <i className="fas fa-plus"></i>
+                {loading ? 'Añadiendo...' : 'Añadir Jugador'}
+              </button>
             </form>
           </div>
         </div>
         
-        <div className="card roster-card">
-          <div className="card-header">
-            <h2 className="card-title">Plantilla del Equipo</h2>
-            <span className="card-subtitle">
-              Total: {players.length} jugadores
-            </span>
+        {/* Contenido principal: lista de jugadores y campo de fútbol */}
+        <div className="team-content">
+          {/* Lista de jugadores - Lado izquierdo (65%) */}
+          <div className="roster-card">
+            <div className="card-header">
+              <h2>Plantilla ({players.length} jugadores)</h2>
+            </div>
+            <div className="card-body">
+              {loading ? (
+                <div className="loading">
+                  <i className="fas fa-spinner fa-spin"></i>
+                  <span>Cargando jugadores...</span>
+                </div>
+              ) : players.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">
+                    <i className="fas fa-users"></i>
+                  </div>
+                  <p className="empty-state-message">No hay jugadores en este equipo</p>
+                  <p>Añade jugadores utilizando el formulario de arriba</p>
+                </div>
+              ) : (
+                <div className="player-roster">
+                  {Object.keys(groupedPlayers).map(position => (
+                    <div key={position} className="position-group">
+                      <div className={`position-header position-${position}`}>
+                        <i className="fas fa-running"></i>
+                        {getPositionLabel(position)} ({groupedPlayers[position].length})
+                      </div>
+                      <div className="position-players">
+                        {groupedPlayers[position].map(player => (
+                          <div key={player.id || player._id} className="player-card" onClick={() => handlePlayerClick(player)}>
+                            <div className="player-number">{player.number}</div>
+                            <div className="player-position-tag">{position}</div>
+                            <div className="player-photo">
+                              {player.photo_url ? (
+                                <img 
+                                  src={player.photo_url} 
+                                  alt={`${player.name} ${player.last_name}`} 
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.parentNode.innerHTML = '<i class="fas fa-user"></i>';
+                                  }}
+                                />
+                              ) : (
+                                <i className="fas fa-user"></i>
+                              )}
+                            </div>
+                            <div className="player-info">
+                              <div className="player-name">{player.name} {player.last_name}</div>
+                              <div className="player-details">
+                                <div className="player-age">{player.age} años</div>
+                                <div className="player-nationality">{player.nationality}</div>
+                              </div>
+                              <button
+                                className="delete-player"
+                                onClick={(e) => handleDeletePlayer(player.id || player._id, e)}
+                                title="Eliminar jugador"
+                              >
+                                <i className="fas fa-trash-alt"></i>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           
-          <div className="card-body">
-            {loading && <p className="loading">Actualizando plantilla...</p>}
+          {/* Campo de fútbol - Lado derecho (35%) */}
+          <div className="football-field-container">
+            {/* Marcas del campo */}
+            <div className="field-markings">
+              <div className="center-circle"></div>
+              <div className="penalty-area-top"></div>
+              <div className="penalty-area-bottom"></div>
+              <div className="goal-area-top"></div>
+              <div className="goal-area-bottom"></div>
+              <div className="penalty-spot-top"></div>
+              <div className="penalty-spot-bottom"></div>
+              <div className="goal-top"></div>
+              <div className="goal-bottom"></div>
+            </div>
             
-            {!loading && players.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-icon">
-                  <i className="fas fa-user-slash"></i>
+            {/* Campo con jugadores */}
+            <div className="football-field">
+              {/* Posiciones del campo */}
+              <div className="field-row">
+                {/* Portero */}
+                <div className="field-position">
+                  {players.filter(p => p.position === 'POR').map(player => (
+                    <div 
+                      key={player.id || player._id} 
+                      className={`player-dot position-${player.position}`}
+                      onClick={() => handlePlayerClick(player)}
+                    >
+                      {player.number}
+                      <div className="player-tooltip">
+                        {player.name} {player.last_name}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <p className="empty-state-message">Este equipo no tiene jugadores</p>
-                <p>Añade tu primer jugador utilizando el formulario.</p>
               </div>
-            ) : (
-              <div className="player-roster">
-                {/* Porteros */}
-                {groupedPlayers['POR'] && (
-                  <div className="position-group">
-                    <div className="position-header" data-position="POR">
-                      <i className="fas fa-hands"></i> Porteros
-                    </div>
-                    <div className="position-players">
-                      {groupedPlayers['POR'].map(player => (
-                        <div 
-                          key={player.id} 
-                          className="player-card"
-                          onClick={() => handlePlayerClick(player)}
-                        >
-                          <div className="player-number">{player.number}</div>
-                          <div className="player-photo">
-                            {player.photo_url ? 
-                              <img src={player.photo_url} alt={player.name} /> : 
-                              <i className="fas fa-user"></i>
-                            }
-                          </div>
-                          <div className="player-info">
-                            <div className="player-name">{player.name} {player.last_name}</div>
-                            <div className="player-details">
-                              <span className="player-age">{player.age} años</span>
-                              <span className="player-nationality">{player.nationality}</span>
-                            </div>
-                          </div>
-                          <button 
-                            className="btn-icon-only delete-player" 
-                            onClick={(e) => handleDeletePlayer(player.id, e)}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
+              
+              <div className="field-row">
                 {/* Defensas */}
-                {(groupedPlayers['DEF'] || groupedPlayers['LTD'] || groupedPlayers['LTI']) && (
-                  <div className="position-group">
-                    <div className="position-header" data-position="DEF">
-                      <i className="fas fa-shield-alt"></i> Defensas
+                <div className="field-position">
+                  {players.filter(p => ['DEF', 'LTD', 'LTI'].includes(p.position)).map(player => (
+                    <div 
+                      key={player.id || player._id} 
+                      className={`player-dot position-${player.position}`}
+                      onClick={() => handlePlayerClick(player)}
+                    >
+                      {player.number}
+                      <div className="player-tooltip">
+                        {player.name} {player.last_name}
+                      </div>
                     </div>
-                    <div className="position-players">
-                      {groupedPlayers['LTD']?.map(player => (
-                        <div 
-                          key={player.id} 
-                          className="player-card"
-                          onClick={() => handlePlayerClick(player)}
-                        >
-                          <div className="player-number">{player.number}</div>
-                          <div className="player-position-tag">LTD</div>
-                          <div className="player-photo">
-                            {player.photo_url ? 
-                              <img src={player.photo_url} alt={player.name} /> : 
-                              <i className="fas fa-user"></i>
-                            }
-                          </div>
-                          <div className="player-info">
-                            <div className="player-name">{player.name} {player.last_name}</div>
-                            <div className="player-details">
-                              <span className="player-age">{player.age} años</span>
-                              <span className="player-nationality">{player.nationality}</span>
-                            </div>
-                          </div>
-                          <button 
-                            className="btn-icon-only delete-player" 
-                            onClick={(e) => handleDeletePlayer(player.id, e)}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      ))}
-                      
-                      {groupedPlayers['DEF']?.map(player => (
-                        <div 
-                          key={player.id} 
-                          className="player-card"
-                          onClick={() => handlePlayerClick(player)}
-                        >
-                          <div className="player-number">{player.number}</div>
-                          <div className="player-position-tag">DC</div>
-                          <div className="player-photo">
-                            {player.photo_url ? 
-                              <img src={player.photo_url} alt={player.name} /> : 
-                              <i className="fas fa-user"></i>
-                            }
-                          </div>
-                          <div className="player-info">
-                            <div className="player-name">{player.name} {player.last_name}</div>
-                            <div className="player-details">
-                              <span className="player-age">{player.age} años</span>
-                              <span className="player-nationality">{player.nationality}</span>
-                            </div>
-                          </div>
-                          <button 
-                            className="btn-icon-only delete-player" 
-                            onClick={(e) => handleDeletePlayer(player.id, e)}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      ))}
-                      
-                      {groupedPlayers['LTI']?.map(player => (
-                        <div 
-                          key={player.id} 
-                          className="player-card"
-                          onClick={() => handlePlayerClick(player)}
-                        >
-                          <div className="player-number">{player.number}</div>
-                          <div className="player-position-tag">LTI</div>
-                          <div className="player-photo">
-                            {player.photo_url ? 
-                              <img src={player.photo_url} alt={player.name} /> : 
-                              <i className="fas fa-user"></i>
-                            }
-                          </div>
-                          <div className="player-info">
-                            <div className="player-name">{player.name} {player.last_name}</div>
-                            <div className="player-details">
-                              <span className="player-age">{player.age} años</span>
-                              <span className="player-nationality">{player.nationality}</span>
-                            </div>
-                          </div>
-                          <button 
-                            className="btn-icon-only delete-player" 
-                            onClick={(e) => handleDeletePlayer(player.id, e)}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Centrocampistas */}
-                {(groupedPlayers['MCD'] || groupedPlayers['MC'] || groupedPlayers['MCO']) && (
-                  <div className="position-group">
-                    <div className="position-header" data-position="MC">
-                      <i className="fas fa-cog"></i> Centrocampistas
-                    </div>
-                    <div className="position-players">
-                      {groupedPlayers['MCD']?.map(player => (
-                        <div 
-                          key={player.id} 
-                          className="player-card"
-                          onClick={() => handlePlayerClick(player)}
-                        >
-                          <div className="player-number">{player.number}</div>
-                          <div className="player-position-tag">MCD</div>
-                          <div className="player-photo">
-                            {player.photo_url ? 
-                              <img src={player.photo_url} alt={player.name} /> : 
-                              <i className="fas fa-user"></i>
-                            }
-                          </div>
-                          <div className="player-info">
-                            <div className="player-name">{player.name} {player.last_name}</div>
-                            <div className="player-details">
-                              <span className="player-age">{player.age} años</span>
-                              <span className="player-nationality">{player.nationality}</span>
-                            </div>
-                          </div>
-                          <button 
-                            className="btn-icon-only delete-player" 
-                            onClick={(e) => handleDeletePlayer(player.id, e)}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      ))}
-                      
-                      {groupedPlayers['MC']?.map(player => (
-                        <div 
-                          key={player.id} 
-                          className="player-card"
-                          onClick={() => handlePlayerClick(player)}
-                        >
-                          <div className="player-number">{player.number}</div>
-                          <div className="player-position-tag">MC</div>
-                          <div className="player-photo">
-                            {player.photo_url ? 
-                              <img src={player.photo_url} alt={player.name} /> : 
-                              <i className="fas fa-user"></i>
-                            }
-                          </div>
-                          <div className="player-info">
-                            <div className="player-name">{player.name} {player.last_name}</div>
-                            <div className="player-details">
-                              <span className="player-age">{player.age} años</span>
-                              <span className="player-nationality">{player.nationality}</span>
-                            </div>
-                          </div>
-                          <button 
-                            className="btn-icon-only delete-player" 
-                            onClick={(e) => handleDeletePlayer(player.id, e)}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      ))}
-                      
-                      {groupedPlayers['MCO']?.map(player => (
-                        <div 
-                          key={player.id} 
-                          className="player-card"
-                          onClick={() => handlePlayerClick(player)}
-                        >
-                          <div className="player-number">{player.number}</div>
-                          <div className="player-position-tag">MCO</div>
-                          <div className="player-photo">
-                            {player.photo_url ? 
-                              <img src={player.photo_url} alt={player.name} /> : 
-                              <i className="fas fa-user"></i>
-                            }
-                          </div>
-                          <div className="player-info">
-                            <div className="player-name">{player.name} {player.last_name}</div>
-                            <div className="player-details">
-                              <span className="player-age">{player.age} años</span>
-                              <span className="player-nationality">{player.nationality}</span>
-                            </div>
-                          </div>
-                          <button 
-                            className="btn-icon-only delete-player" 
-                            onClick={(e) => handleDeletePlayer(player.id, e)}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Atacantes */}
-                {(groupedPlayers['ED'] || groupedPlayers['EI'] || groupedPlayers['SD'] || groupedPlayers['DEL']) && (
-                  <div className="position-group">
-                    <div className="position-header" data-position="DEL">
-                      <i className="fas fa-futbol"></i> Atacantes
-                    </div>
-                    <div className="position-players">
-                      {groupedPlayers['ED']?.map(player => (
-                        <div 
-                          key={player.id} 
-                          className="player-card"
-                          onClick={() => handlePlayerClick(player)}
-                        >
-                          <div className="player-number">{player.number}</div>
-                          <div className="player-position-tag">ED</div>
-                          <div className="player-photo">
-                            {player.photo_url ? 
-                              <img src={player.photo_url} alt={player.name} /> : 
-                              <i className="fas fa-user"></i>
-                            }
-                          </div>
-                          <div className="player-info">
-                            <div className="player-name">{player.name} {player.last_name}</div>
-                            <div className="player-details">
-                              <span className="player-age">{player.age} años</span>
-                              <span className="player-nationality">{player.nationality}</span>
-                            </div>
-                          </div>
-                          <button 
-                            className="btn-icon-only delete-player" 
-                            onClick={(e) => handleDeletePlayer(player.id, e)}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      ))}
-                      
-                      {groupedPlayers['EI']?.map(player => (
-                        <div 
-                          key={player.id} 
-                          className="player-card"
-                          onClick={() => handlePlayerClick(player)}
-                        >
-                          <div className="player-number">{player.number}</div>
-                          <div className="player-position-tag">EI</div>
-                          <div className="player-photo">
-                            {player.photo_url ? 
-                              <img src={player.photo_url} alt={player.name} /> : 
-                              <i className="fas fa-user"></i>
-                            }
-                          </div>
-                          <div className="player-info">
-                            <div className="player-name">{player.name} {player.last_name}</div>
-                            <div className="player-details">
-                              <span className="player-age">{player.age} años</span>
-                              <span className="player-nationality">{player.nationality}</span>
-                            </div>
-                          </div>
-                          <button 
-                            className="btn-icon-only delete-player" 
-                            onClick={(e) => handleDeletePlayer(player.id, e)}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      ))}
-                      
-                      {groupedPlayers['SD']?.map(player => (
-                        <div 
-                          key={player.id} 
-                          className="player-card"
-                          onClick={() => handlePlayerClick(player)}
-                        >
-                          <div className="player-number">{player.number}</div>
-                          <div className="player-position-tag">SD</div>
-                          <div className="player-photo">
-                            {player.photo_url ? 
-                              <img src={player.photo_url} alt={player.name} /> : 
-                              <i className="fas fa-user"></i>
-                            }
-                          </div>
-                          <div className="player-info">
-                            <div className="player-name">{player.name} {player.last_name}</div>
-                            <div className="player-details">
-                              <span className="player-age">{player.age} años</span>
-                              <span className="player-nationality">{player.nationality}</span>
-                            </div>
-                          </div>
-                          <button 
-                            className="btn-icon-only delete-player" 
-                            onClick={(e) => handleDeletePlayer(player.id, e)}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      ))}
-                      
-                      {groupedPlayers['DEL']?.map(player => (
-                        <div 
-                          key={player.id} 
-                          className="player-card"
-                          onClick={() => handlePlayerClick(player)}
-                        >
-                          <div className="player-number">{player.number}</div>
-                          <div className="player-position-tag">DEL</div>
-                          <div className="player-photo">
-                            {player.photo_url ? 
-                              <img src={player.photo_url} alt={player.name} /> : 
-                              <i className="fas fa-user"></i>
-                            }
-                          </div>
-                          <div className="player-info">
-                            <div className="player-name">{player.name} {player.last_name}</div>
-                            <div className="player-details">
-                              <span className="player-age">{player.age} años</span>
-                              <span className="player-nationality">{player.nationality}</span>
-                            </div>
-                          </div>
-                          <button 
-                            className="btn-icon-only delete-player" 
-                            onClick={(e) => handleDeletePlayer(player.id, e)}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  ))}
+                </div>
               </div>
-            )}
+              
+              <div className="field-row">
+                {/* Mediocampos */}
+                <div className="field-position">
+                  {players.filter(p => ['MCD', 'MC', 'MCO'].includes(p.position)).map(player => (
+                    <div 
+                      key={player.id || player._id} 
+                      className={`player-dot position-${player.position}`}
+                      onClick={() => handlePlayerClick(player)}
+                    >
+                      {player.number}
+                      <div className="player-tooltip">
+                        {player.name} {player.last_name}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="field-row">
+                {/* Delanteros */}
+                <div className="field-position">
+                  {players.filter(p => ['ED', 'EI', 'SD', 'DEL'].includes(p.position)).map(player => (
+                    <div 
+                      key={player.id || player._id} 
+                      className={`player-dot position-${player.position}`}
+                      onClick={() => handlePlayerClick(player)}
+                    >
+                      {player.number}
+                      <div className="player-tooltip">
+                        {player.name} {player.last_name}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       
-      {/* Modal para detalles del jugador */}
+      {/* Modal para ver/editar jugador */}
       {showPlayerModal && selectedPlayer && (
-        <PlayerDetailModal 
+        <PlayerDetailModal
           player={selectedPlayer}
           onClose={handleClosePlayerModal}
           onUpdate={handlePlayerUpdate}
