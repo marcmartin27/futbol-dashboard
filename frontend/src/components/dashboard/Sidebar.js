@@ -15,8 +15,6 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
   const isCoach = user && user.role === 'coach';
   const isUser = user && (user.role === 'user' || !user.role);
   
-  // Función para manejar el clic en "Mi equipo" - navega directamente a gestión de plantilla
-
   return (
     <div className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
       <div className="brand">
@@ -88,14 +86,35 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 <span className="nav-text">Sesiones</span>
               </a>
             </li>
+            
+            <li className="nav-item">
+              <a 
+                href="#" 
+                className={`nav-link ${activePage === 'admin-minutes' ? 'active' : ''}`}
+                onClick={() => setActivePage('admin-minutes')}
+              >
+                <span className="nav-icon"><i className="fas fa-stopwatch"></i></span>
+                <span className="nav-text">Minutaje</span>
+              </a>
+            </li>
+            
+            {/* Nueva opción para administrador - Control de Asistencia */}
+            <li className="nav-item">
+              <a 
+                href="#" 
+                className={`nav-link ${activePage === 'admin-attendance' ? 'active' : ''}`}
+                onClick={() => setActivePage('admin-attendance')}
+              >
+                <span className="nav-icon"><i className="fas fa-clipboard-check"></i></span>
+                <span className="nav-text">Asistencia</span>
+              </a>
+            </li>
           </>
         )}
         
         {/* Elementos solo para entrenadores */}
         {isCoach && (
           <>
-
-            
             <li className="nav-item">
               <a 
                 href="#" 
@@ -188,6 +207,5 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
     </div>
   );
 }
-
 
 export default Sidebar;

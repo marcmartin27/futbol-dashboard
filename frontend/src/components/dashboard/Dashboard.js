@@ -6,19 +6,15 @@ import TeamSection from './TeamSection';
 import UsersSection from './UsersSection';
 import CoachTeamSection from './CoachTeamSection';
 import AttendanceSection from './AttendanceSection';
-import MyTasksSection from './MyTasksSection'; // Agrega esta línea
+import MyTasksSection from './MyTasksSection';
 import '../../styles/main.scss';
 import MinutesSection from './MinutesSection';
-import MySessions from './MySessions'; // Agrega esta línea junto a las demás importaciones
+import MySessions from './MySessions';
 import AdminTasksSection from './AdminTasksSection';
 import AdminSessionsSection from './AdminSessionsSection';
+import AdminMinutesSection from './AdminMinutesSection';
+import AdminAttendanceSection from './AdminAttendanceSection'; // Importa el nuevo componente
 import CoachInicio from './CoachInicio';
-
-
-
-
-
-
 
 function Dashboard() {
   const [teams, setTeams] = useState([]);
@@ -113,7 +109,6 @@ function Dashboard() {
   const handleUserChange = e => {
     setUserForm({ ...userForm, [e.target.name]: e.target.value });
   };
-
 
   const handleTeamSubmit = async e => {
     e.preventDefault();
@@ -245,6 +240,14 @@ function Dashboard() {
             {activePage === 'admin-sessions' && (
               <AdminSessionsSection />
             )}
+
+            {activePage === 'admin-minutes' && (
+              <AdminMinutesSection />
+            )}
+            
+            {activePage === 'admin-attendance' && (
+              <AdminAttendanceSection />
+            )}
           </>
         )}
         
@@ -259,7 +262,6 @@ function Dashboard() {
               <CoachTeamSection />
             )}
           
-
             {activePage === 'attendance' && (
               <AttendanceSection />
             )}
