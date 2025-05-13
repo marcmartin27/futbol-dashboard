@@ -129,16 +129,3 @@ EMAIL_HOST_PASSWORD = 'bkwl feeo qdfd qkec'
 DEFAULT_FROM_EMAIL = 'Team Manager <gamepaparruchas@gmail.com>'
 
 
-try:
-    from django.core.mail import send_mail
-    print("Enviando correo de prueba...")
-    send_mail(
-        'Prueba de correo desde Django',
-        'Este es un mensaje de prueba para verificar la configuración de correo.',
-        'Team Manager <gamepaparruchas@gmail.com>',
-        ['marc.martin@inslapineda.cat'],
-        fail_silently=False,
-    )
-    print("Correo de prueba enviado correctamente")
-except Exception as e:
-    print(f"ERROR al enviar correo de prueba: {str(e)}")
