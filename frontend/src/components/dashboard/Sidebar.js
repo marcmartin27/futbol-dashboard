@@ -50,7 +50,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 onClick={() => setActivePage('teams')}
               >
                 <span className="nav-icon"><i className="fas fa-users"></i></span>
-                <span className="nav-text">Equipos</span>
+                <span className="nav-text">Gestion Equipos</span>
               </a>
             </li>
             
@@ -61,7 +61,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 onClick={() => setActivePage('users')}
               >
                 <span className="nav-icon"><i className="fas fa-user-cog"></i></span>
-                <span className="nav-text">Usuarios</span>
+                <span className="nav-text">Gestion Usuarios</span>
               </a>
             </li>
             
@@ -72,7 +72,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 onClick={() => setActivePage('admin-tasks')}
               >
                 <span className="nav-icon"><i className="fas fa-tasks"></i></span>
-                <span className="nav-text">Tareas</span>
+                <span className="nav-text">Gestion Tareas</span>
               </a>
             </li>
             
@@ -83,7 +83,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 onClick={() => setActivePage('admin-sessions')}
               >
                 <span className="nav-icon"><i className="fas fa-calendar-alt"></i></span>
-                <span className="nav-text">Sesiones</span>
+                <span className="nav-text">Gestion Sesiones</span>
               </a>
             </li>
             
@@ -94,7 +94,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 onClick={() => setActivePage('admin-minutes')}
               >
                 <span className="nav-icon"><i className="fas fa-stopwatch"></i></span>
-                <span className="nav-text">Minutaje</span>
+                <span className="nav-text">Control Minutaje</span>
               </a>
             </li>
             
@@ -106,7 +106,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
                 onClick={() => setActivePage('admin-attendance')}
               >
                 <span className="nav-icon"><i className="fas fa-clipboard-check"></i></span>
-                <span className="nav-text">Asistencia</span>
+                <span className="nav-text">Control Asistencia</span>
               </a>
             </li>
           </>
