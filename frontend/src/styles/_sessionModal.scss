@@ -1,0 +1,225 @@
+.session-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200; // Asegurar que esté por encima de otros modales si los hubiera
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.session-modal-content {
+  background-color: #ffffff;
+  border-radius: 12px;
+  width: 700px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  animation: slideUpModal 0.35s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUpModal {
+  from { transform: translateY(40px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.session-modal-header {
+  padding: 20px 28px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    i {
+      font-size: 20px;
+      opacity: 0.9;
+    }
+  }
+}
+
+.session-modal-close {
+  background: rgb(0, 0, 0); // Fondo ligeramente oscuro para contraste
+  border: 1px solid rgba(255, 255, 255, 0.5); // Borde blanco semitransparente
+  color: white; // Color de la cruz siempre blanco y opaco
+  font-size: 28px;
+  font-weight: 300;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s, transform 0.2s; // Quitado color de la transición
+
+  &:hover {
+    background-color: rgb(0, 0, 0); // Fondo un poco más oscuro en hover
+    border-color: white; // Borde completamente blanco en hover
+    transform: rotate(90deg);
+  }
+}
+
+.session-modal-body {
+  padding: 28px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.session-modal-section {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color-light);
+
+  &:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    i {
+      font-size: 16px;
+    }
+  }
+}
+
+.modal-session-date,
+.modal-session-duration {
+  font-size: 16px;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+  strong {
+    color: var(--text-muted);
+    margin-right: 8px;
+  }
+  i {
+    margin-right: 8px;
+    color: var(--primary-color);
+  }
+}
+
+.modal-tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.modal-task-item {
+  background-color: var(--bg-light);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--border-color-light);
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: var(--shadow-subtle);
+  }
+
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+  }
+  p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+}
+
+.modal-task-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.modal-task-category {
+  background-color: var(--primary-light);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-weight: 500;
+}
+
+.modal-task-duration {
+  color: var(--text-muted);
+  font-weight: 500;
+  i {
+    margin-right: 4px;
+  }
+}
+
+.modal-players-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.modal-player-tag {
+  background-color: #e9ecef;
+  color: var(--text-dark);
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #dee2e6;
+
+  .player-tag-number {
+    background-color: var(--primary-color);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .player-tag-name {
+    font-weight: 500;
+  }
+  .player-tag-position {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+}
+
+.modal-no-data {
+  color: var(--text-muted);
+  font-style: italic;
+}
