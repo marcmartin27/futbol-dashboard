@@ -13,8 +13,10 @@ import MySessions from './MySessions';
 import AdminTasksSection from './AdminTasksSection';
 import AdminSessionsSection from './AdminSessionsSection';
 import AdminMinutesSection from './AdminMinutesSection';
-import AdminAttendanceSection from './AdminAttendanceSection'; // Importa el nuevo componente
+import AdminAttendanceSection from './AdminAttendanceSection';
 import CoachInicio from './CoachInicio';
+import AdminDashboardHome from './AdminDashboardHome'; 
+
 
 function Dashboard() {
   const [teams, setTeams] = useState([]);
@@ -195,7 +197,11 @@ function Dashboard() {
       <div className="main-content">
         <div className="top-bar">
           <h1 className="page-title">
-            {user?.role === 'admin' ? 'Panel de Administración' : 'Panel de Entrenador'} | Team Manager
+            {/* Modificación para el título de la página de inicio del admin */}
+            {user?.role === 'admin' && activePage === 'dashboard' ? 'Inicio Administrador' : 
+             user?.role === 'admin' ? 'Panel de Administración' : 
+             user?.role === 'coach' && activePage === 'dashboard' ? 'Inicio Entrenador' : 
+             'Panel de Entrenador'} | Team Manager
           </h1>
         </div>
           
@@ -203,10 +209,8 @@ function Dashboard() {
         {user?.role === 'admin' && (
           <>
             {activePage === 'dashboard' && (
-              <div className="content-wrapper">
-                <h2>Dashboard Principal</h2>
-                <p>Bienvenido al panel de control de administrador</p>
-              </div>
+              // Renderiza el nuevo componente de inicio para admin
+              <AdminDashboardHome setActivePage={setActivePage} />
             )}
             
             {activePage === 'teams' && (
