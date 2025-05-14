@@ -459,37 +459,80 @@ function MySessions() {
       </div>
       
       {/* Modal para mostrar detalles de la sesión seleccionada */}
-      {selectedSession && (
+{selectedSession && (
         <div className="session-modal-overlay" onClick={() => setSelectedSession(null)}>
           <div 
             className="session-modal-content" 
             onClick={(e) => e.stopPropagation()}
           >
-            <button className="session-modal-close" onClick={() => setSelectedSession(null)}>
-              &times;
-            </button>
-            <h2>Detalles de la Sesión</h2>
-            <div className="session-modal-details">
-              <div className="modal-session-date">
-                <strong>Fecha:</strong> {formatDate(selectedSession.date)}
+            <div className="session-modal-header">
+              <h2><i className="fas fa-calendar-check"></i> Detalles de la Sesión</h2>
+              <button className="session-modal-close" onClick={() => setSelectedSession(null)}>
+                &times;
+              </button>
+            </div>
+            <div className="session-modal-body">
+              <div className="session-modal-section">
+                <h3><i className="fas fa-info-circle"></i> Información General</h3>
+                <div className="modal-session-date">
+                  <i className="fas fa-calendar-alt"></i>
+                  <strong>Fecha:</strong> {formatDate(selectedSession.date)}
+                </div>
+                <div className="modal-session-duration">
+                  <i className="fas fa-clock"></i>
+                  <strong>Duración Total:</strong> {calculateSessionDuration(selectedSession, tasks)} min
+                </div>
               </div>
-              <div className="modal-tasks">
-                {selectedSession.tasks.map((taskId, index) => {
-                  const task = tasks.find(t => (t.id || t._id) === taskId);
-                  return task ? (
-                    <div key={index} className="modal-task-item">
-                      <h4>{index + 1}. {task.title}</h4>
-                      <p>{task.description}</p>
-                      <div className="modal-task-meta">
-                        <span className="modal-task-category">{task.category}</span> - <span className="modal-task-duration">{task.duration} min</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div key={index} className="modal-task-item">
-                      Tarea no encontrada
-                    </div>
-                  );
-                })}
+
+              <div className="session-modal-section">
+                <h3><i className="fas fa-tasks"></i> Tareas Programadas ({selectedSession.tasks?.length || 0})</h3>
+                {selectedSession.tasks && selectedSession.tasks.length > 0 ? (
+                  <div className="modal-tasks-grid">
+                    {selectedSession.tasks.map((taskId, index) => {
+                      const task = tasks.find(t => (t.id || t._id) === taskId);
+                      return task ? (
+                        <div key={taskId || index} className="modal-task-item">
+                          <h4>{index + 1}. {task.title}</h4>
+                          <p>{task.description || "Sin descripción."}</p>
+                          <div className="modal-task-meta">
+                            <span className="modal-task-category">{task.category}</span>
+                            <span className="modal-task-duration"><i className="fas fa-stopwatch"></i> {task.duration} min</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div key={taskId || index} className="modal-task-item modal-no-data">
+                          Tarea con ID: {taskId} no encontrada.
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="modal-no-data">No hay tareas asignadas a esta sesión.</p>
+                )}
+              </div>
+
+              <div className="session-modal-section">
+                <h3><i className="fas fa-users"></i> Jugadores Participantes ({selectedSession.players?.length || 0})</h3>
+                {selectedSession.players && selectedSession.players.length > 0 ? (
+                  <div className="modal-players-list">
+                    {selectedSession.players.map((playerId, index) => {
+                      const player = players.find(p => (p.id || p._id) === playerId);
+                      return player ? (
+                        <div key={playerId || index} className="modal-player-tag">
+                          <span className="player-tag-number">{player.number}</span>
+                          <span className="player-tag-name">{player.name} {player.last_name}</span>
+                          <span className="player-tag-position">({player.position_display || player.position})</span>
+                        </div>
+                      ) : (
+                        <div key={playerId || index} className="modal-player-tag modal-no-data">
+                          Jugador con ID: {playerId} no encontrado.
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="modal-no-data">No hay jugadores asignados a esta sesión.</p>
+                )}
               </div>
             </div>
           </div>
