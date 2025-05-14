@@ -19,7 +19,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
     <div className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
       <div className="brand">
         <div className="brand-logo">
-          <i className="fas fa-futbol"></i>
+          <img src={require('../../assets/images/logo-small.png')} alt="Logo"/>
         </div>
         <span className="brand-text">Team Manager</span>
         <div className="sidebar-toggle" onClick={toggleSidebar}>

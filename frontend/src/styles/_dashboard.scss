@@ -24,6 +24,13 @@
     width: var(--sidebar-collapsed-width);
   }
 
+  .sidebar.collapsed .sidebar-toggle {
+  // ...existing styles...
+  // Asegurar que los estilos aquí también permitan ver el ícono completo
+  justify-content: center; // Puede que necesite ser ajustado específicamente
+}
+
+
   .brand {
     display: flex;
     align-items: center;
@@ -57,23 +64,33 @@
   }
   
   .sidebar-toggle {
+    color: white;
     position: absolute;
     top: 12px;
     right: -12px;
     width: 24px;
     height: 24px;
-    background: white;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     cursor: pointer;
     box-shadow: 0 2px 5px var(--shadow-color);
     z-index: 1;
+    display: flex; // Asegurar que flexbox esté activado si no lo está
+    align-items: center; // Centrar verticalmente el ícono
+    justify-content: center; // Centrar horizontalmente el ícono
+    padding: 8px; // Ajustar el padding si es necesario para dar espacio al ícono
+    width: 40px; // Asegurar que el botón tenga suficiente ancho
+    height: 40px; // Asegurar que el botón tenga suficiente alto
+
+    i, svg { // Estilos para el ícono de la flecha
+      font-size: 18px; // Ajustar el tamaño de la fuente del ícono si es muy grande
+      line-height: 1; // Asegurar que la altura de línea no cause problemas
+      // No añadir width/height aquí si es un ícono de fuente,
+      // pero si es un SVG, asegurar que su viewBox y dimensiones sean correctas.
+    }
   }
   
   .sidebar-toggle i {
-    color: var(--primary-color);
+    color: white;
     font-size: 14px;
   }
   
@@ -303,11 +320,10 @@
   }
 
   .brand-logo {
-    margin-bottom: 24px;
     
-    img.logo-large {
-      max-width: 200px;
-      height: auto;
+    img {
+      width: 500px;
+      filter: brightness(0) invert(1); /* Hace la imagen completamente blanca */
     }
   }
 
@@ -315,11 +331,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 46px;
+    height: 46px;
     background: transparent;
-    margin-right: 16px;
     flex-shrink: 0;
+    margin-left: -8px;
+    
     
     img {
       max-width: 100%;
