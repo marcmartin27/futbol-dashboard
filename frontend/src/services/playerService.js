@@ -2,6 +2,7 @@ import { authHeader } from './auth';
 
 const API_URL = 'http://localhost:8000/api/teams';
 
+
 export const getTeamPlayers = async (teamId) => {
   try {
     const response = await fetch(`${API_URL}/${teamId}/players/`, {
@@ -46,7 +47,7 @@ export const createPlayer = async (teamId, playerData) => {
 
 export const deletePlayer = async (playerId) => {
   try {
-    const response = await fetch(`${API_URL}/players/${playerId}/`, {
+    const response = await fetch(`${API_URL}/players/${playerId}/`, { 
       method: 'DELETE',
       headers: authHeader()
     });
@@ -65,7 +66,7 @@ export const deletePlayer = async (playerId) => {
 
 export const updatePlayer = async (playerId, playerData) => {
   try {
-    const response = await fetch(`${API_URL}/players/${playerId}/`, {
+    const response = await fetch(`${API_URL}/players/${playerId}/`, { 
       method: 'PUT',
       headers: {
         ...authHeader(),

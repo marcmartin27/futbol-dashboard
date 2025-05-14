@@ -161,7 +161,7 @@ function TeamDetailPage() {
     }
   };
 
-  const handleDeletePlayer = async (playerId, e) => {
+const handleDeletePlayer = async (playerId, e) => {
     e.stopPropagation();
     
     if (!window.confirm("¿Estás seguro de eliminar este jugador?")) {
@@ -170,13 +170,22 @@ function TeamDetailPage() {
     
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8000/api/players/${playerId}/`, {
+      
+      // Para debugging - verifica la información del usuario y el token
+      const user = JSON.parse(localStorage.getItem('user'));
+      console.log("Usuario actual:", user);
+      console.log("Token:", user?.token?.substring(0, 20) + "...");
+      console.log("Rol:", user?.role);
+      console.log("Equipo asignado:", user?.team);
+      
+      const response = await fetch(`http://localhost:8000/api/teams/players/${playerId}/`, {
         method: 'DELETE',
         headers: authHeader()
       });
       
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: No se pudo eliminar el jugador`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Error ${response.status}: ${errorData.error || 'No se pudo eliminar el jugador'}`);
       }
       
       // Actualizar la lista de jugadores

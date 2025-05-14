@@ -215,15 +215,52 @@ class PlayerDetailView(APIView):
     def delete(self, request, id):
         try:
             player = Player.objects.get(id=id)
+            
+            # LOGS DE DEPURACIÓN DETALLADOS
+            print("=" * 50)
+            print(f"ELIMINAR JUGADOR")
+            print(f"Usuario: {request.user.username} (Rol: {request.user.role})")
+            print(f"ID del jugador: {id}")
+            
+            coach_team_id = str(request.user.team.id) if hasattr(request.user, 'team') and request.user.team else "Sin equipo"
+            player_team_id = str(player.team.id) if player.team else "Sin equipo"
+            
+            print(f"Equipo del jugador: {player_team_id}")
+            print(f"Equipo del entrenador: {coach_team_id}")
+            print(f"¿Coinciden los IDs? {coach_team_id == player_team_id}")
+            print("=" * 50)
+            
+            # Verificación manual de permisos
+            if request.user.role == 'admin':
+                # Los administradores pueden eliminar cualquier jugador
+                player.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            
+            # Si es entrenador, verificar equipo asignado
+            if not hasattr(request.user, 'team') or not request.user.team:
+                return Response({"error": "No tienes un equipo asignado"}, 
+                              status=status.HTTP_403_FORBIDDEN)
+            
+            # Verificar que el jugador pertenezca al equipo del entrenador
+            if str(player.team.id) != str(request.user.team.id):
+                return Response({"error": f"Solo puedes eliminar jugadores de tu equipo"}, 
+                              status=status.HTTP_403_FORBIDDEN)
+            
+            # Si pasa todas las verificaciones, eliminar el jugador
             player.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+            
         except Player.DoesNotExist:
             return Response({"error": "Jugador no encontrado"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response(
-                {"error": f"Error del servidor: {str(e)}"}, 
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            import traceback
+            tb = traceback.format_exc()
+            print(f"Error al eliminar jugador: {str(e)}")
+            print(tb)
+            return Response({"error": f"Error del servidor: {str(e)}"}, 
+                          status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
 # Añadir al final del archivo views.py
 class AttendanceListView(APIView):
     permission_classes = [IsCoachOfTeamOrAdmin]

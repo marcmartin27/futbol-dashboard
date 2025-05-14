@@ -9,21 +9,10 @@ class IsCoachOfTeamOrAdmin(BasePermission):
         if request.user.role == 'admin':
             return True
         
-        # Obtener el team_id de la URL si existe
-        team_id = view.kwargs.get('team_id') or view.kwargs.get('id')
-        
-        # Coaches can only access their own team
+        # Para todas las vistas que no sean para un objeto específico
+        # Los entrenadores tienen permiso general
         if request.user.role == 'coach':
-            # Si no hay team_id en la URL, permitir acceso general
-            if not team_id:
-                return True
-                
-            # Si hay team_id, verificar que sea su equipo
-            if hasattr(request.user, 'team') and request.user.team:
-                # Convertir ambos a string y normalizar formato para comparación
-                user_team_id = str(request.user.team.id).strip()
-                url_team_id = str(team_id).strip()
-                return user_team_id == url_team_id
+            return True
                 
         return False
         
@@ -32,16 +21,17 @@ class IsCoachOfTeamOrAdmin(BasePermission):
         if request.user.role == 'admin':
             return True
             
-        # Para objetos que tienen una referencia al team
+        # Para objetos que tienen una referencia al team (como Player)
         if hasattr(obj, 'team'):
             # Coaches can only access objects related to their team
-            if request.user.role == 'coach' and hasattr(request.user, 'team'):
-                return obj.team == request.user.team
+            if request.user.role == 'coach' and hasattr(request.user, 'team') and request.user.team:
+                # Comparar los IDs como strings, no los objetos
+                return str(obj.team.id) == str(request.user.team.id)
                 
         # Si el objeto es un equipo
         elif type(obj).__name__ == 'Team':
             # Coaches can only access their assigned team
-            if request.user.role == 'coach' and hasattr(request.user, 'team'):
+            if request.user.role == 'coach' and hasattr(request.user, 'team') and request.user.team:
                 # Comparar los IDs como strings para evitar problemas de tipo
                 return str(obj.id) == str(request.user.team.id)
                 
