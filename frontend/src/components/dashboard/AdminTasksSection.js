@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { authHeader } from '../../services/auth';
+import AdminTaskViewModal from './AdminTaskViewModal'; // Importar el nuevo modal
+
 
 function AdminTasksSection() {
   const [loading, setLoading] = useState(true);
@@ -10,112 +12,100 @@ function AdminTasksSection() {
   const [filterCategory, setFilterCategory] = useState('');
   const [categories, setCategories] = useState([]);
 
+  // Estado para el modal de visualización
+  const [selectedTaskForView, setSelectedTaskForView] = useState(null);
+
   useEffect(() => {
     loadAllTasks();
   }, []);
 
-  // Cargar todas las tareas y agruparlas por entrenador
   const loadAllTasks = async () => {
+    setLoading(true);
+    setError('');
     try {
-      setLoading(true);
+      const headers = authHeader();
+      // Primero, obtener todos los usuarios para identificar a los entrenadores
+      const usersResponse = await fetch('http://localhost:8000/api/users/', { headers });
+      if (!usersResponse.ok) throw new Error('Error al cargar usuarios');
+      const allUsers = await usersResponse.json();
+      const coachUsers = allUsers.filter(user => user.role === 'coach');
+      setCoaches(coachUsers);
+
+      // Luego, obtener todas las tareas
+      const tasksResponse = await fetch('http://localhost:8000/api/tasks/all', { headers });
+      if (!tasksResponse.ok) throw new Error('Error al cargar tareas');
+      const allTasks = await tasksResponse.json();
       
-      // Obtener lista de entrenadores
-      const coachesResponse = await fetch('http://localhost:8000/api/users/', {
-        headers: authHeader()
-      });
-      
-      if (!coachesResponse.ok) {
-        throw new Error(`Error ${coachesResponse.status}`);
-      }
-      
-      const coachesData = await coachesResponse.json();
-      const coachesList = coachesData.filter(user => user.role === 'coach');
-      setCoaches(coachesList);
-      
-      // Obtener todas las tareas (API modificada para admins)
-      const tasksResponse = await fetch('http://localhost:8000/api/tasks/all/', {
-        headers: authHeader()
-      });
-      
-      if (!tasksResponse.ok) {
-        throw new Error(`Error ${tasksResponse.status}`);
-      }
-      
-      const tasksData = await tasksResponse.json();
-      
-      // Extraer categorías únicas
-      const uniqueCategories = [...new Set(tasksData.map(task => task.category))];
-      setCategories(uniqueCategories);
-      
-      // Agrupar tareas por entrenador
-      const taskGroups = {};
-      
-      tasksData.forEach(task => {
-        const coachId = task.owner;
-        if (!taskGroups[coachId]) {
-          taskGroups[coachId] = [];
+      // Extraer categorías únicas de todas las tareas
+      const uniqueCategories = [...new Set(allTasks.map(task => task.category).filter(Boolean))];
+      setCategories(uniqueCategories.sort());
+
+      // Agrupar tareas por el ID del propietario (entrenador)
+      const tasksGrouped = allTasks.reduce((acc, task) => {
+        const ownerId = task.owner; // Asumiendo que 'owner' es el ID del coach
+        if (!acc[ownerId]) {
+          acc[ownerId] = [];
         }
-        taskGroups[coachId].push(task);
-      });
-      
-      setTasksByCoach(taskGroups);
-      
+        acc[ownerId].push(task);
+        return acc;
+      }, {});
+      setTasksByCoach(tasksGrouped);
+
     } catch (err) {
-      setError(`Error al cargar las tareas: ${err.message}`);
+      console.error("Error loading tasks or coaches:", err);
+      setError(`No se pudieron cargar los datos: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
-
-  // Obtener nombre completo del entrenador por ID
+  
   const getCoachName = (coachId) => {
     const coach = coaches.find(c => c.id === coachId || c._id === coachId);
     if (coach) {
-      if (coach.first_name && coach.last_name) {
-        return `${coach.first_name} ${coach.last_name}`;
-      }
-      return coach.username;
+      return `${coach.first_name || ''} ${coach.last_name || ''}`.trim() || coach.username;
     }
     return "Entrenador desconocido";
   };
 
-  // Obtener equipo del entrenador por ID
   const getCoachTeam = (coachId) => {
     const coach = coaches.find(c => c.id === coachId || c._id === coachId);
     return coach?.team_name || "Sin equipo asignado";
   };
 
-  // Obtener iniciales del nombre
   const getInitials = (coachId) => {
-    const coach = coaches.find(c => c.id === coachId || c._id === coachId);
-    if (coach) {
-      if (coach.first_name && coach.last_name) {
-        return `${coach.first_name[0]}${coach.last_name[0]}`.toUpperCase();
-      }
-      return coach.username.substring(0, 2).toUpperCase();
-    }
-    return "??";
+    const coachName = getCoachName(coachId);
+    if (coachName === "Entrenador desconocido") return "??";
+    return coachName.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
-  // Filtrar tareas basado en búsqueda y categoría
   const filterTasks = (tasks) => {
-    if (!searchTerm && !filterCategory) return tasks;
-    
-    return tasks.filter(task => {
-      const matchesSearch = !searchTerm || 
-        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.description.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesCategory = !filterCategory || task.category === filterCategory;
-      
-      return matchesSearch && matchesCategory;
-    });
+    if (!tasks) return [];
+    let filtered = tasks;
+    if (filterCategory) {
+      filtered = filtered.filter(task => task.category === filterCategory);
+    }
+    if (searchTerm) {
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      filtered = filtered.filter(task =>
+        task.title.toLowerCase().includes(lowerSearchTerm) ||
+        task.description.toLowerCase().includes(lowerSearchTerm)
+      );
+    }
+    return filtered;
   };
 
-  // Resetear filtros
   const handleClearFilters = () => {
     setSearchTerm('');
     setFilterCategory('');
+  };
+
+  // Funciones para el modal de visualización
+  const openViewModal = (task) => {
+    setSelectedTaskForView(task);
+  };
+
+  const closeViewModal = () => {
+    setSelectedTaskForView(null);
   };
 
   if (loading) {
@@ -123,7 +113,7 @@ function AdminTasksSection() {
       <div className="content-wrapper">
         <h2>Tareas por Entrenador</h2>
         <div className="admin-loading">
-          <i className="fas fa-spinner spinner"></i>
+          <i className="fas fa-spinner fa-spin spinner"></i>
           <span>Cargando tareas...</span>
         </div>
       </div>
@@ -137,7 +127,6 @@ function AdminTasksSection() {
       {error && <div className="error-message">{error}</div>}
 
       <div className="admin-tasks-container">
-        {/* Filtros */}
         <div className="filter-container">
           <div className="filter-group">
             <label htmlFor="search">Buscar tareas</label>
@@ -172,77 +161,42 @@ function AdminTasksSection() {
           </div>
         </div>
 
-        {/* Si no hay tareas */}
-        {Object.keys(tasksByCoach).length === 0 && (
+        {Object.keys(tasksByCoach).length === 0 && !loading && (
           <div className="admin-empty-state">
-            <i className="fas fa-tasks icon"></i>
+            <i className="fas fa-folder-open icon"></i>
             <p className="title">No hay tareas creadas</p>
             <p className="description">Los entrenadores aún no han creado tareas en el sistema.</p>
           </div>
         )}
 
-        {/* Lista de entrenadores con sus tareas */}
         {Object.keys(tasksByCoach).map(coachId => {
-          const tasks = tasksByCoach[coachId];
-          const filteredTasks = filterTasks(tasks);
+          const tasksForCurrentCoach = tasksByCoach[coachId];
+          const filteredTasks = filterTasks(tasksForCurrentCoach);
           
-          // No mostrar secciones vacías después del filtrado
           if (filteredTasks.length === 0) return null;
-          
+
           return (
-            <div key={coachId} className="coach-section">
+            <div key={coachId} className="coach-tasks-group">
               <div className="coach-header">
-                <div className="coach-avatar">
-                  {getInitials(coachId)}
-                </div>
+                <div className="coach-avatar">{getInitials(coachId)}</div>
                 <div className="coach-info">
                   <div className="coach-name">{getCoachName(coachId)}</div>
-                  <div className="coach-team">
-                    <i className="fas fa-futbol"></i>
-                    {getCoachTeam(coachId)}
-                  </div>
+                  <div className="coach-team">{getCoachTeam(coachId)}</div>
                 </div>
-                <div className="task-count">
-                  {filteredTasks.length} {filteredTasks.length === 1 ? 'tarea' : 'tareas'}
+                <div className="tasks-count">
+                  {filteredTasks.length} Tarea{filteredTasks.length !== 1 ? 's' : ''}
                 </div>
               </div>
-              
-              <div className="coach-tasks">
+              <div className="tasks-grid">
                 {filteredTasks.map(task => (
-                  <div key={task.id || task._id} className="admin-task-card">
-                    <img 
-                      src={task.image} 
-                      alt={task.title} 
-                      className="task-image" 
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = 'https://via.placeholder.com/300x180?text=Imagen+no+disponible';
-                      }}
-                    />
-                    <div className="task-content">
-                      <div className="task-header">
-                        <h3 className="task-title">{task.title}</h3>
-                        <span className="task-category">{task.category}</span>
-                      </div>
-                      <p className="task-description">
-                        {task.description.length > 100 
-                          ? `${task.description.substring(0, 100)}...` 
-                          : task.description
-                        }
-                      </p>
-                      <div className="task-details">
-                        <div className="task-detail">
-                          <i className="fas fa-users"></i>
-                          {task.participants} participantes
-                        </div>
-                        <div className="task-detail">
-                          <i className="fas fa-clock"></i>
-                          {task.duration} min
-                        </div>
-                        <div className="task-detail">
-                          <i className="fas fa-toolbox"></i>
-                          {task.material}
-                        </div>
+                  <div key={task.id || task._id} className="task-card-admin" onClick={() => openViewModal(task)}> {/* Añadido onClick */}
+                    {task.image && <img src={task.image} alt={task.title} className="task-image-admin" />}
+                    <div className="task-content-admin">
+                      <h3 className="task-title-admin">{task.title}</h3>
+                      <p className="task-category-admin">{task.category}</p>
+                      <div className="task-meta-admin">
+                        <span><i className="fas fa-users"></i> {task.participants}</span>
+                        <span><i className="fas fa-clock"></i> {task.duration} min</span>
                       </div>
                     </div>
                   </div>
@@ -252,6 +206,10 @@ function AdminTasksSection() {
           );
         })}
       </div>
+      {/* Renderizar el modal de visualización */}
+      {selectedTaskForView && (
+        <AdminTaskViewModal task={selectedTaskForView} onClose={closeViewModal} />
+      )}
     </div>
   );
 }

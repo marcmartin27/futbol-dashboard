@@ -1,381 +1,346 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authHeader } from '../../services/auth';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Sector } from 'recharts';
+
+// CONSTANTES Y FUNCIONES AUXILIARES GLOBALES AL ARCHIVO (si las tienes fuera del componente)
+const CHART_COLORS = {
+  primary: 'var(--primary-color, #3f51b5)',
+  success: 'var(--success-color, #66bb6a)',
+  warning: 'var(--warning-color, #ffa726)',
+  danger: 'var(--danger-color, #f44336)',
+  info: 'var(--info-color, #29b6f6)',
+  purple: '#6f42c1',
+  neutralLight: 'rgba(0,0,0,0.5)',
+  neutralDark: 'rgba(0,0,0,0.8)',
+};
+
+const PIE_CHART_COLORS = [
+  CHART_COLORS.primary, 
+  CHART_COLORS.success, 
+  CHART_COLORS.warning, 
+  CHART_COLORS.info, 
+  CHART_COLORS.purple
+];
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-tooltip">
+        <p className="label">{`${label}`}</p>
+        {payload.map((entry, index) => (
+          <p key={`item-${index}`} style={{ color: entry.color }}>
+            {`${entry.name}: ${entry.value}`}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
+const renderActiveShape = (props) => {
+  const RADIAN = Math.PI / 180;
+  const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
+  const sin = Math.sin(-RADIAN * midAngle);
+  const cos = Math.cos(-RADIAN * midAngle);
+  const sx = cx + (outerRadius + 8) * cos;
+  const sy = cy + (outerRadius + 8) * sin;
+  const mx = cx + (outerRadius + 25) * cos;
+  const my = cy + (outerRadius + 25) * sin;
+  const ex = mx + (cos >= 0 ? 1 : -1) * 20;
+  const ey = my;
+  const textAnchor = cos >= 0 ? 'start' : 'end';
+
+  return (
+    <g>
+      <text x={cx} y={cy} dy={4} textAnchor="middle" fill={CHART_COLORS.neutralDark} fontWeight="bold">
+        {payload.name}
+      </text>
+      <text x={cx} y={cy} dy={22} textAnchor="middle" fill={CHART_COLORS.neutralLight} fontSize="0.9em">
+        {`${value} (${(percent * 100).toFixed(0)}%)`}
+      </text>
+      <Sector cx={cx} cy={cy} innerRadius={innerRadius} outerRadius={outerRadius} startAngle={startAngle} endAngle={endAngle} fill={fill} stroke="#fff" strokeWidth={2} />
+      <Sector cx={cx} cy={cy} startAngle={startAngle} endAngle={endAngle} innerRadius={outerRadius + 4} outerRadius={outerRadius + 8} fill={fill} />
+    </g>
+  );
+};
+
+const groupPlayerPositions = (players) => {
+  const positionGroups = { Porteros: 0, Defensas: 0, Mediocampistas: 0, Delanteros: 0 };
+  players.forEach(player => {
+    const pos = player.position;
+    if (['POR'].includes(pos)) positionGroups.Porteros++;
+    else if (['DEF', 'LTD', 'LTI'].includes(pos)) positionGroups.Defensas++;
+    else if (['MCD', 'MC', 'MCO', 'ED', 'EI'].includes(pos)) positionGroups.Mediocampistas++;
+    else if (['SD', 'DEL'].includes(pos)) positionGroups.Delanteros++;
+  });
+  return Object.entries(positionGroups).map(([name, value]) => ({ name, value })).filter(group => group.value > 0);
+};
+
 
 function CoachInicio({ setActivePage }) {
   const navigate = useNavigate();
-  const [team, setTeam] = useState(null);
-  const [playerCount, setPlayerCount] = useState(0);
-  const [recentTasks, setRecentTasks] = useState([]);
-  const [upcomingSessions, setUpcomingSessions] = useState([]);
-  const [attendanceStats, setAttendanceStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  // Obtener usuario desde localStorage
   const user = JSON.parse(localStorage.getItem('user'));
 
+  // --- ESTADOS ---
+  const [team, setTeam] = useState(null);
+  const [playerCount, setPlayerCount] = useState(0);
+  const [upcomingSessionsCount, setUpcomingSessionsCount] = useState(0);
+  const [avgAttendance, setAvgAttendance] = useState(0);
+  const [playerPositionDistributionData, setPlayerPositionDistributionData] = useState([]);
+  const [sessionFrequencyData, setSessionFrequencyData] = useState([]);
+  const [playerMinutesData, setPlayerMinutesData] = useState([]);
+  const [loadingTeamInfo, setLoadingTeamInfo] = useState(true);
+  const [loadingSessionsInfo, setLoadingSessionsInfo] = useState(true);
+  const [loadingAttendanceInfo, setLoadingAttendanceInfo] = useState(true);
+  const [loadingCharts, setLoadingCharts] = useState(true);
+  const [activePieIndex, setActivePieIndex] = useState(0);
+  const [error, setError] = useState('');
+  const [tasksCountForStatCard, setTasksCountForStatCard] = useState(0);
+  const [loadingTasksCountForStatCard, setLoadingTasksCountForStatCard] = useState(true);
+
+  // --- FUNCIONES DE CARGA DE DATOS Y useEffect ---
   useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  const loadDashboardData = async () => {
-    try {
-      setLoading(true);
-      if (!user.team) {
-        setError('No tienes un equipo asignado');
-        setLoading(false);
-        return;
-      }
-
-      // Cargar datos del equipo
-      await loadTeamData();
-      
-      // Cargar tareas recientes
-      await loadRecentTasks();
-      
-      // Cargar próximas sesiones
-      await loadUpcomingSessions();
-      
-      // Cargar estadísticas de asistencia
-      await loadAttendanceStats();
-      
-    } catch (err) {
-      setError(`Error al cargar datos: ${err.message}`);
-    } finally {
-      setLoading(false);
+    if (!user || !user.team) {
+      setError('No tienes un equipo asignado. Contacta con un administrador.');
+      setLoadingTeamInfo(false); setLoadingTasksCountForStatCard(false); setLoadingSessionsInfo(false);
+      setLoadingAttendanceInfo(false); setLoadingCharts(false);
+      return;
     }
+    loadTeamData();
+    loadTasksCountForStat();
+    loadSessionsSummary();
+    loadAttendanceSummary();
+    loadChartData();
+  }, [user?.team]); // Asegúrate que user.team esté en las dependencias si es necesario
+
+  const onPieClick = (_, index) => { // Renombrado para mayor claridad, o puedes mantener onPieEnter
+    setActivePieIndex(index);
   };
 
-  const loadTeamData = async () => {
+  const loadTeamData = async () => { /* ... tu implementación ... */ 
+    setLoadingTeamInfo(true);
     try {
-      // Cargar datos del equipo
-      const teamResponse = await fetch(`http://localhost:8000/api/teams/${user.team}/`, {
-        headers: authHeader()
-      });
-      
-      if (!teamResponse.ok) {
-        throw new Error(`Error ${teamResponse.status}: No se pudo cargar el equipo`);
-      }
-      
+      const teamResponse = await fetch(`http://localhost:8000/api/teams/${user.team}/`, { headers: authHeader() });
+      if (!teamResponse.ok) throw new Error('Error al cargar datos del equipo');
       const teamData = await teamResponse.json();
       setTeam(teamData);
-      
-      // Cargar jugadores del equipo
-      const playersResponse = await fetch(`http://localhost:8000/api/teams/${user.team}/players/`, {
-        headers: authHeader()
-      });
-      
+
+      const playersResponse = await fetch(`http://localhost:8000/api/teams/${user.team}/players/`, { headers: authHeader() });
       if (playersResponse.ok) {
         const playersData = await playersResponse.json();
         setPlayerCount(Array.isArray(playersData) ? playersData.length : 0);
       }
-    } catch (error) {
-      console.error("Error cargando equipo:", error);
-      throw error;
+    } catch (err) {
+      setError(prev => `${prev} Equipo: ${err.message};`);
+    } finally {
+      setLoadingTeamInfo(false);
     }
   };
-
-  const loadRecentTasks = async () => {
+  const loadTasksCountForStat = async () => { /* ... tu implementación ... */ 
+    setLoadingTasksCountForStatCard(true);
     try {
-      const response = await fetch('http://localhost:8000/api/tasks/', {
-        headers: authHeader()
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        // Ordenar por fecha y tomar las 3 más recientes
-        const sortedTasks = Array.isArray(data) 
-          ? data.sort((a, b) => new Date(b.createdAt || Date.now()) - new Date(a.createdAt || Date.now())).slice(0, 3)
-          : [];
-        setRecentTasks(sortedTasks);
-      }
-    } catch (error) {
-      console.error("Error cargando tareas:", error);
+      const tasksResponse = await fetch('http://localhost:8000/api/tasks/', { headers: authHeader() });
+      if (!tasksResponse.ok) throw new Error('Error al cargar tareas');
+      const tasksData = await tasksResponse.json();
+      setTasksCountForStatCard(tasksData.length);
+    } catch (err) {
+      setError(prev => `${prev} Conteo Tareas: ${err.message};`);
+    } finally {
+      setLoadingTasksCountForStatCard(false);
     }
   };
-
-  const loadUpcomingSessions = async () => {
+  const loadSessionsSummary = async () => { /* ... tu implementación ... */ 
+    setLoadingSessionsInfo(true);
     try {
-      const response = await fetch('http://localhost:8000/api/sessions/', {
-        headers: authHeader()
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        // Filtrar sesiones futuras y ordenar por fecha
-        const now = new Date();
-        const upcoming = Array.isArray(data)
-          ? data
-              .filter(session => new Date(session.date) >= now)
-              .sort((a, b) => new Date(a.date) - new Date(b.date))
-              .slice(0, 2)
-          : [];
-        setUpcomingSessions(upcoming);
-      }
-    } catch (error) {
-      console.error("Error cargando sesiones:", error);
+      const sessionsResponse = await fetch('http://localhost:8000/api/sessions/', { headers: authHeader() });
+      if (!sessionsResponse.ok) throw new Error('Error al cargar sesiones');
+      const sessionsData = await sessionsResponse.json();
+      const upcoming = sessionsData.filter(s => new Date(s.date) >= new Date() && new Date(s.date) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)).length;
+      setUpcomingSessionsCount(upcoming);
+      const frequency = sessionsData.reduce((acc, session) => {
+        const month = new Date(session.date).toLocaleString('default', { month: 'short' });
+        acc[month] = (acc[month] || 0) + 1;
+        return acc;
+      }, {});
+      setSessionFrequencyData(Object.entries(frequency).map(([name, value]) => ({ name, Sesiones: value })).slice(-6));
+    } catch (err) {
+      setError(prev => `${prev} Sesiones: ${err.message};`);
+    } finally {
+      setLoadingSessionsInfo(false);
     }
   };
-
-  const loadAttendanceStats = async () => {
+  const loadAttendanceSummary = async () => { /* ... tu implementación ... */ 
+    setLoadingAttendanceInfo(true);
     try {
-      const currentWeek = Math.ceil((new Date() - new Date(new Date().getFullYear(), 0, 1)) / 86400000 / 7);
-      const response = await fetch(`http://localhost:8000/api/teams/${user.team}/attendance/?week=${currentWeek}`, {
-        headers: authHeader()
-      });
-      
-      if (response.ok) {
+      const response = await fetch(`http://localhost:8000/api/teams/${user.team}/attendance/summary/`, { headers: authHeader() });
+      if(response.ok){
         const data = await response.json();
-        if (Array.isArray(data) && data.length > 0) {
-          // Calcular porcentajes de asistencia
-          const stats = {
-            totalPlayers: data.length,
-            training1Percent: Math.round(data.filter(a => a.training1).length / data.length * 100),
-            training2Percent: Math.round(data.filter(a => a.training2).length / data.length * 100),
-            training3Percent: Math.round(data.filter(a => a.training3).length / data.length * 100),
-            matchPercent: Math.round(data.filter(a => a.match).length / data.length * 100)
-          };
-          setAttendanceStats(stats);
-        }
-      }
-    } catch (error) {
-      console.error("Error cargando estadísticas de asistencia:", error);
+        setAvgAttendance(data.average_attendance_percentage || 0);
+      } else { setAvgAttendance(0); }
+    } catch (err) {
+       setError(prev => `${prev} Asistencia: ${err.message};`);
+       setAvgAttendance(0);
+    } finally {
+      setLoadingAttendanceInfo(false);
     }
   };
+  const loadChartData = async () => { /* ... tu implementación ... */ 
+    setLoadingCharts(true);
+    setError(prev => prev.replace(/Gráficos: [^;]+;/g, ''));
+    try {
+      const playersResponse = await fetch(`http://localhost:8000/api/teams/${user.team}/players/`, { headers: authHeader() });
+      if (playersResponse.ok) {
+        const playersData = await playersResponse.json();
+        if (Array.isArray(playersData)) setPlayerPositionDistributionData(groupPlayerPositions(playersData));
+        else setPlayerPositionDistributionData([]);
+      } else throw new Error('Error al cargar jugadores para el gráfico de distribución');
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Fecha no disponible';
-    
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('es-ES', options);
+      const minutesResponse = await fetch(`http://localhost:8000/api/teams/${user.team}/minutes/?matches=false`, { headers: authHeader() });
+      if (minutesResponse.ok) {
+          const allMinutes = await minutesResponse.json();
+          const playerMinutesSum = allMinutes.reduce((acc, record) => {
+              const playerId = record.player_id || record.player;
+              acc[playerId] = acc[playerId] || { name: `${record.player_name || 'Jugador'} ${record.player_last_name || ''}`.trim(), minutes: 0 };
+              acc[playerId].minutes += record.minutes_played || 0;
+              return acc;
+          }, {});
+          setPlayerMinutesData(Object.values(playerMinutesSum).sort((a, b) => b.minutes - a.minutes).slice(0, 5));
+      } else throw new Error('Error al cargar minutos de jugadores');
+    } catch (err) {
+        setError(prev => `${prev} Gráficos: ${err.message};`);
+    } finally {
+      setLoadingCharts(false);
+    }
   };
+  const onPieEnter = (_, index) => { setActivePieIndex(index); };
 
-  // Función para navegar a diferentes secciones
+  // ***** DEFINICIÓN DE FUNCIONES DE NAVEGACIÓN *****
   const navigateTo = (section) => {
-    // Cambia la página activa en el dashboard
     setActivePage(section);
   };
 
-  // Función específica para ir a la página de detalles del equipo
   const goToTeamManagement = () => {
-    navigate(`/team/${user.team}`);
+    if (user && user.team) {
+      navigate(`/team/${user.team}`);
+    } else {
+      console.error("Usuario o equipo del usuario no definido para goToTeamManagement.");
+      setError(prev => `${prev} No se puede acceder a la gestión del equipo (usuario/equipo no definido);`);
+    }
   };
 
-  if (loading) {
+  // --- COMPONENTES LOCALES DE UI (SI LOS TIENES AQUÍ) ---
+  const StatCard = ({ icon, title, value, color, isLoading, onClick }) => (
+    <div className={`stat-card coach-stat-card ${color}`} onClick={onClick}>
+      <div className="stat-card-icon"><i className={`fas ${icon}`}></i></div>
+      <div className="stat-card-info">
+        <span className="stat-card-value">{isLoading ? <i className="fas fa-spinner fa-spin"></i> : value}</span>
+        <span className="stat-card-title">{title}</span>
+      </div>
+    </div>
+  );
+
+  const QuickLinkCard = ({ icon, title, description, onClick, color }) => (
+    <div className={`quick-link-card coach-quick-link ${color}`} onClick={onClick}>
+      <div className="quick-link-icon"><i className={`fas ${icon}`}></i></div>
+      <div className="quick-link-info"><h3>{title}</h3><p>{description}</p></div>
+      <div className="quick-link-arrow"><i className="fas fa-chevron-right"></i></div>
+    </div>
+  );
+
+  const ChartWrapper = ({ title, children, isLoading, hasData }) => (
+    <div className="chart-container coach-chart-container">
+      <h3>{title}</h3>
+      {isLoading ? ( <div className="chart-loading"><i className="fas fa-spinner fa-spin"></i> Cargando datos...</div> )
+       : hasData === false || (Array.isArray(hasData) && hasData.length === 0) ? ( <p className="no-data-chart">No hay datos disponibles.</p> )
+       : ( <ResponsiveContainer width="100%" height={300}>{children}</ResponsiveContainer> )}
+    </div>
+  );
+  
+  // --- MANEJO DE ERROR INICIAL ---
+  if (error && !team && !user?.team) { 
     return (
-      <div className="content-wrapper">
-        <div className="dashboard-loading">
-          <i className="fas fa-spinner fa-spin"></i>
-          <span>Cargando información del dashboard...</span>
+      <div className="content-wrapper coach-inicio-page">
+        <div className="coach-welcome-header error-header">
+          <h1>Error</h1>
+          <p>{error.includes("equipo asignado") ? error : "Error al cargar datos. " + error.split(';')[0]}</p>
         </div>
       </div>
     );
   }
 
+  // --- JSX DEL COMPONENTE ---
   return (
-    <div className="content-wrapper">
-      <div className="coach-dashboard">
-        {/* Bienvenida y resumen del equipo */}
-        <div className="dashboard-welcome">
-          <div className="welcome-header">
-            <h2>¡Bienvenido al Dashboard, {user.first_name || user.username}!</h2>
-            <p className="date-display">{new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-          </div>
-          
-          {team && (
-            <div className="team-preview">
-              <div className="team-avatar">
-                {team.name.split(' ').map(word => word[0]).join('').toUpperCase()}
-              </div>
-              <div className="team-info">
-                <h3>{team.name}</h3>
-                <p>{team.city} - Fundado en {team.founded}</p>
-              </div>
-            </div>
-          )}
-        </div>
+    <div className="content-wrapper coach-inicio-page">
+      <div className="coach-welcome-header">
+        <h1>Bienvenido, Entrenador {user?.first_name || user?.username}!</h1>
+        <p>Aquí tienes un resumen de la actividad de tu equipo: {loadingTeamInfo && !team ? <i className="fas fa-spinner fa-spin"></i> : <strong>{team?.name || 'Tu Equipo'}</strong>}</p>
+      </div>
 
-        {/* Tarjetas de estadísticas */}
-        <div className="stats-cards">
-          <div className="stat-card">
-            <div className="stat-icon">
-              <i className="fas fa-users"></i>
-            </div>
-            <div className="stat-content">
-              <h3>{playerCount}</h3>
-              <p>Jugadores en plantilla</p>
-            </div>
-            <div className="stat-action" onClick={goToTeamManagement}>
-              <i className="fas fa-arrow-right"></i>
-            </div>
-          </div>
-          
-          <div className="stat-card">
-            <div className="stat-icon">
-              <i className="fas fa-clipboard-list"></i>
-            </div>
-            <div className="stat-content">
-              <h3>{recentTasks.length}</h3>
-              <p>Tareas recientes</p>
-            </div>
-            <div className="stat-action" onClick={() => navigateTo('tasks')}>
-              <i className="fas fa-arrow-right"></i>
-            </div>
-          </div>
-          
-          <div className="stat-card">
-            <div className="stat-icon">
-              <i className="fas fa-calendar-alt"></i>
-            </div>
-            <div className="stat-content">
-              <h3>{upcomingSessions.length}</h3>
-              <p>Sesiones programadas</p>
-            </div>
-            <div className="stat-action" onClick={() => navigateTo('sessions')}>
-              <i className="fas fa-arrow-right"></i>
-            </div>
-          </div>
-          
-          <div className="stat-card">
-            <div className="stat-icon">
-              <i className="fas fa-stopwatch"></i>
-            </div>
-            <div className="stat-content">
-              <h3>Control</h3>
-              <p>Minutaje de partidos</p>
-            </div>
-            <div className="stat-action" onClick={() => navigateTo('minutes')}>
-              <i className="fas fa-arrow-right"></i>
-            </div>
-          </div>
-        </div>
+      {error && <div className="error-message" style={{margin: '0 20px 20px 20px'}}>{error.split(';').map((e, i) => e.trim() && <div key={i}>{e.trim()}</div>)}</div>}
 
-        {/* Secciones principales */}
-        <div className="dashboard-sections">
-          {/* Próximas sesiones */}
-          <div className="dashboard-section">
-            <div className="section-header">
-              <h3><i className="fas fa-calendar-day"></i> Próximas Sesiones</h3>
-              <button className="view-all-btn" onClick={() => navigateTo('sessions')}>
-                Ver todas
-              </button>
-            </div>
-            
-            <div className="section-content">
-              {upcomingSessions.length > 0 ? (
-                <div className="sessions-preview">
-                  {upcomingSessions.map((session, index) => (
-                    <div key={index} className="session-card-mini">
-                      <div className="session-date">
-                        <i className="fas fa-calendar"></i> {formatDate(session.date)}
-                      </div>
-                      <div className="session-details">
-                        <div className="session-tasks">
-                          <i className="fas fa-clipboard-list"></i> 
-                          {session.tasks_details?.length || 4} tareas
-                        </div>
-                        <div className="session-players">
-                          <i className="fas fa-users"></i> 
-                          {session.players_details?.length || 'N/A'} jugadores
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="empty-preview">
-                  <i className="fas fa-calendar-times"></i>
-                  <p>No tienes sesiones programadas próximamente</p>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Tareas recientes */}
-          <div className="dashboard-section">
-            <div className="section-header">
-              <h3><i className="fas fa-tasks"></i> Tareas Recientes</h3>
-              <button className="view-all-btn" onClick={() => navigateTo('tasks')}>
-                Ver todas
-              </button>
-            </div>
-            
-            <div className="section-content">
-              {recentTasks.length > 0 ? (
-                <div className="tasks-preview">
-                  {recentTasks.map((task, index) => (
-                    <div key={index} className="task-card-mini">
-                      <div className="task-image">
-                        <img src={task.image} alt={task.title} />
-                      </div>
-                      <div className="task-info">
-                        <h4>{task.title}</h4>
-                        <div className="task-meta">
-                          <span className="task-category">{task.category}</span>
-                          <span className="task-duration"><i className="fas fa-clock"></i> {task.duration} min</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="empty-preview">
-                  <i className="fas fa-clipboard"></i>
-                  <p>No has creado tareas recientemente</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+      <div className="stats-grid">
+        <StatCard icon="fa-users" title="Jugadores" value={playerCount} isLoading={loadingTeamInfo} color="blue" onClick={() => navigateTo('myteam')} />
+        <StatCard icon="fa-tasks" title="Tareas Creadas" value={tasksCountForStatCard} isLoading={loadingTasksCountForStatCard} color="green" onClick={() => navigateTo('tasks')} />
+        <StatCard icon="fa-calendar-check" title="Próximas Sesiones" value={upcomingSessionsCount} isLoading={loadingSessionsInfo} color="orange" onClick={() => navigateTo('sessions')} />
+        <StatCard icon="fa-user-check" title="Asistencia Media" value={`${avgAttendance}%`} isLoading={loadingAttendanceInfo} color="purple" onClick={() => navigateTo('attendance')} />
+      </div>
 
-        {/* Estadísticas de asistencia */}
-        {attendanceStats && (
-          <div className="dashboard-section full-width">
-            <div className="section-header">
-              <h3><i className="fas fa-clipboard-check"></i> Asistencia Semanal</h3>
-              <button className="view-all-btn" onClick={() => navigateTo('attendance')}>
-                Gestionar
-              </button>
-            </div>
-            
-            <div className="section-content">
-              <div className="attendance-preview">
-                <div className="attendance-card">
-                  <div className="attendance-percent">{attendanceStats.training1Percent}%</div>
-                  <div className="attendance-label">Entrenamiento 1</div>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{width: `${attendanceStats.training1Percent}%`}}></div>
-                  </div>
-                </div>
-                
-                <div className="attendance-card">
-                  <div className="attendance-percent">{attendanceStats.training2Percent}%</div>
-                  <div className="attendance-label">Entrenamiento 2</div>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{width: `${attendanceStats.training2Percent}%`}}></div>
-                  </div>
-                </div>
-                
-                <div className="attendance-card">
-                  <div className="attendance-percent">{attendanceStats.training3Percent}%</div>
-                  <div className="attendance-label">Entrenamiento 3</div>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{width: `${attendanceStats.training3Percent}%`}}></div>
-                  </div>
-                </div>
-                
-                <div className="attendance-card">
-                  <div className="attendance-percent">{attendanceStats.matchPercent}%</div>
-                  <div className="attendance-label">Partido</div>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{width: `${attendanceStats.matchPercent}%`}}></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="charts-section">
+        <ChartWrapper 
+          title="Distribución de Jugadores por Posición" 
+          isLoading={loadingCharts} 
+          hasData={playerPositionDistributionData.length > 0}
+        >
+          <PieChart>
+            <Pie
+              activeIndex={activePieIndex}
+              activeShape={renderActiveShape}
+              data={playerPositionDistributionData}
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={90}
+              fill={CHART_COLORS.primary}
+              dataKey="value"
+              onClick={onPieClick} // CAMBIO: de onMouseEnter a onClick
+              paddingAngle={2}
+            >
+              {playerPositionDistributionData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={PIE_CHART_COLORS[index % PIE_CHART_COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip content={<CustomTooltip />} />
+          </PieChart>
+        </ChartWrapper>
+
+        <ChartWrapper title="Frecuencia de Sesiones (Últimos meses)" isLoading={loadingSessionsInfo} hasData={sessionFrequencyData.length > 0}>
+          <BarChart data={sessionFrequencyData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" /> <XAxis dataKey="name" tick={{ fill: CHART_COLORS.neutralLight }} /> <YAxis tick={{ fill: CHART_COLORS.neutralLight }} />
+            <Tooltip content={<CustomTooltip />} /> <Legend wrapperStyle={{ color: CHART_COLORS.neutralDark }} />
+            <Bar dataKey="Sesiones" fill={CHART_COLORS.primary} radius={[4, 4, 0, 0]} barSize={30}/>
+          </BarChart>
+        </ChartWrapper>
+        
+        <ChartWrapper title="Top 5 Jugadores por Minutos" isLoading={loadingCharts} hasData={playerMinutesData.length > 0}>
+            <BarChart layout="vertical" data={playerMinutesData} margin={{ top: 5, right: 30, left: 30, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" /> <XAxis type="number" tick={{ fill: CHART_COLORS.neutralLight }} />
+                <YAxis dataKey="name" type="category" width={100} tick={{ fill: CHART_COLORS.neutralDark, fontSize: '0.8em' }} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="minutes" name="Minutos Jugados" fill={CHART_COLORS.warning} radius={[0, 4, 4, 0]} barSize={20} />
+            </BarChart>
+        </ChartWrapper>
+      </div>
+
+      <div className="quick-links-section">
+        <h2>Acciones Rápidas</h2>
+        <div className="quick-links-grid">
+          <QuickLinkCard icon="fa-user-plus" title="Gestionar Plantilla" description="Añade o edita jugadores de tu equipo." onClick={goToTeamManagement} color="blue-ql" />
+          <QuickLinkCard icon="fa-clipboard-list" title="Crear Tarea" description="Define nuevos ejercicios para el equipo." onClick={() => navigateTo('tasks')} color="green-ql" />
+          <QuickLinkCard icon="fa-calendar-plus" title="Planificar Sesión" description="Organiza el próximo entrenamiento." onClick={() => navigateTo('sessions')} color="orange-ql" />
+          <QuickLinkCard icon="fa-running" title="Registrar Minutos" description="Controla el tiempo de juego de tus jugadores." onClick={() => navigateTo('minutes')} color="purple-ql" />
+        </div>
       </div>
     </div>
   );
