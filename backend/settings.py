@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-^35+nxo(0wkc*%i%u45443tlgkr@3t7j5(09^e4e4x@9ob=y#7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['futbol-dashboard.ubuntu', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['futbol-dashboard.ubuntu', 'localhost', '127.0.0.1', 'futbol-frontend.ubuntu']
 
 # Application definition
 
