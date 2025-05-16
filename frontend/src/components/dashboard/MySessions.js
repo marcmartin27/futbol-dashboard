@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { authHeader } from '../../services/auth';
 import '../../styles/_session.scss';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 function MySessions() {
   // Estados para datos
-  const [sessions, setSessions] = useState([]);
+const [sessions, setSessions] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [categories, setCategories] = useState([]);
   
-  // Estados para el formulario
   const [sessionForm, setSessionForm] = useState({
     date: new Date().toISOString().split('T')[0],
     tasks: [],
@@ -20,10 +21,8 @@ function MySessions() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredTasks, setFilteredTasks] = useState([]);
   
-  // Estado para el modal de sesión
   const [selectedSession, setSelectedSession] = useState(null);
   
-  // Usuario actual
   const user = JSON.parse(localStorage.getItem('user'));
   
   // Cargar datos iniciales
@@ -33,21 +32,16 @@ function MySessions() {
     loadPlayers();
   }, []);
   
-  // Efecto para filtrar tareas por categoría
   useEffect(() => {
-    if (selectedCategory) {
-      setFilteredTasks(tasks.filter(task => task.category === selectedCategory));
-    } else {
-      setFilteredTasks(tasks);
-    }
+    const availableTasks = selectedCategory 
+      ? tasks.filter(task => task.category === selectedCategory)
+      : tasks;
+    setFilteredTasks(availableTasks);
   }, [selectedCategory, tasks]);
   
-  // Efecto para extraer categorías únicas de las tareas
   useEffect(() => {
-    if (tasks.length > 0) {
-      const uniqueCategories = [...new Set(tasks.map(task => task.category))];
-      setCategories(uniqueCategories);
-    }
+    const uniqueCategories = [...new Set(tasks.map(task => task.category))];
+    setCategories(uniqueCategories);
   }, [tasks]);
   
   // Cargar sesiones del usuario
@@ -227,6 +221,108 @@ function MySessions() {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  const handleExportToPDF = (sessionToExport) => {
+      if (!sessionToExport || !tasks.length || !players.length) {
+        console.error("Datos insuficientes para generar PDF o sesión no proporcionada.");
+        return;
+      }
+
+      const doc = new jsPDF();
+
+      const sessionTasksDetails = sessionToExport.tasks
+        .map(taskId => tasks.find(t => (t.id || t._id) === taskId))
+        .filter(task => task);
+
+      const sessionPlayersDetails = sessionToExport.players
+        .map(playerId => players.find(p => (p.id || p._id) === playerId))
+        .filter(player => player);
+
+      doc.setFontSize(18);
+      doc.setTextColor(40, 40, 40);
+      doc.text("Detalles de la Sesión de Entrenamiento", 105, 22, { align: 'center' });
+
+      doc.setFontSize(12);
+      doc.setTextColor(60, 60, 60);
+      doc.text(`Fecha: ${formatDate(sessionToExport.date || sessionToExport.created_at)}`, 14, 35);
+      doc.text(`Duración Total Estimada: ${calculateSessionDuration(sessionToExport, tasks)} min`, 14, 42);
+
+      let currentY = 55;
+
+      if (sessionTasksDetails.length > 0) {
+        doc.setFontSize(14);
+        doc.setTextColor(40, 40, 40);
+        doc.text("Tareas Programadas", 14, currentY);
+        currentY += 8;
+
+        const taskTableColumns = ["Nº", "Título", "Categoría", "Duración (min)"];
+        const taskTableRows = sessionTasksDetails.map((task, index) => [
+          index + 1,
+          task.title,
+          task.category,
+          task.duration,
+        ]);
+
+        autoTable(doc, { // MODIFICACIÓN: Usar autoTable(doc, options)
+          startY: currentY,
+          head: [taskTableColumns],
+          body: taskTableRows,
+          theme: 'grid',
+          headStyles: { fillColor: [63, 81, 181], textColor: [255,255,255], fontStyle: 'bold' },
+          styles: { fontSize: 10, cellPadding: 2 },
+          columnStyles: { 0: { cellWidth: 15 } },
+          didDrawPage: (data) => { currentY = data.cursor.y; }
+        });
+        currentY = doc.lastAutoTable.finalY ? doc.lastAutoTable.finalY + 10 : currentY + 10;
+      } else {
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text("No hay tareas asignadas a esta sesión.", 14, currentY);
+        currentY += 10;
+      }
+
+      if (sessionPlayersDetails.length > 0) {
+        doc.setFontSize(14);
+        doc.setTextColor(40, 40, 40);
+        doc.text("Jugadores Participantes", 14, currentY);
+        currentY += 8;
+
+        const playerTableColumns = ["Nº", "Nombre", "Apellido", "Posición"];
+        const playerTableRows = sessionPlayersDetails.map(player => [
+          player.number,
+          player.name,
+          player.last_name,
+          player.position_display || player.position,
+        ]);
+
+        autoTable(doc, { // MODIFICACIÓN: Usar autoTable(doc, options)
+          startY: currentY,
+          head: [playerTableColumns],
+          body: playerTableRows,
+          theme: 'grid',
+          headStyles: { fillColor: [63, 81, 181], textColor: [255,255,255], fontStyle: 'bold' },
+          styles: { fontSize: 10, cellPadding: 2 },
+          columnStyles: { 0: { cellWidth: 15 } },
+          didDrawPage: (data) => { currentY = data.cursor.y; }
+        });
+      } else {
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text("No hay jugadores asignados a esta sesión.", 14, currentY);
+      }
+      
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.width - 25, doc.internal.pageSize.height - 10);
+        doc.text(`Team Manager - Sesión ${formatDate(sessionToExport.date || sessionToExport.created_at)}`, 14, doc.internal.pageSize.height - 10);
+      }
+
+      const fileName = `Sesion_${(sessionToExport.date || sessionToExport.id).toString().replace(/\//g, '-')}.pdf`;
+      doc.save(fileName);
+    };
   
   return (
     <div className="content-wrapper">
@@ -379,10 +475,17 @@ function MySessions() {
                           {formatDate(session.date || session.created_at)}
                         </div>
                         <div className="session-actions">
-                          <button className="btn-icon" title="Exportar a PDF">
+                          <button 
+                            className="btn-icon" 
+                            title="Exportar a PDF"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Evita que se abra el modal
+                              handleExportToPDF(session);
+                            }}
+                          >
                             <i className="fas fa-file-pdf"></i>
                           </button>
-                          <button className="btn-icon" title="Imprimir">
+                          <button className="btn-icon" title="Imprimir" onClick={(e) => e.stopPropagation()}>
                             <i className="fas fa-print"></i>
                           </button>
                         </div>
@@ -492,11 +595,24 @@ function MySessions() {
                       const task = tasks.find(t => (t.id || t._id) === taskId);
                       return task ? (
                         <div key={taskId || index} className="modal-task-item">
-                          <h4>{index + 1}. {task.title}</h4>
-                          <p>{task.description || "Sin descripción."}</p>
-                          <div className="modal-task-meta">
-                            <span className="modal-task-category">{task.category}</span>
-                            <span className="modal-task-duration"><i className="fas fa-stopwatch"></i> {task.duration} min</span>
+                          {/* Añadir la imagen de la tarea */}
+                          {task.image && (
+                            <div className="modal-task-image-container">
+                              <img 
+                                src={task.image} 
+                                alt={task.title} 
+                                className="modal-task-image"
+                                onError={(e) => { e.target.style.display = 'none'; }} // Ocultar si hay error
+                              />
+                            </div>
+                          )}
+                          <div className="modal-task-content"> {/* Envolver el contenido textual */}
+                            <h4>{index + 1}. {task.title}</h4>
+                            <p>{task.description || "Sin descripción."}</p>
+                            <div className="modal-task-meta">
+                              <span className="modal-task-category">{task.category}</span>
+                              <span className="modal-task-duration"><i className="fas fa-stopwatch"></i> {task.duration} min</span>
+                            </div>
                           </div>
                         </div>
                       ) : (

@@ -129,7 +129,8 @@
 
 .modal-tasks-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  // grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); // Si quieres una sola columna, cambia esto
+  grid-template-columns: 1fr; // Para una sola columna
   gap: 20px;
 }
 
@@ -139,15 +140,40 @@
   padding: 16px;
   border: 1px solid var(--border-color-light);
   transition: box-shadow 0.2s ease;
+  display: flex; // Añadido para alinear imagen y contenido
+  gap: 15px; // Espacio entre imagen y contenido
 
   &:hover {
     box-shadow: var(--shadow-subtle);
+  }
+  // Contenedor para la imagen
+  .modal-task-image-container {
+    width: 100px; // Ancho fijo para la imagen
+    height: 100px; // Alto fijo para la imagen (puede ser 'auto' si prefieres)
+    flex-shrink: 0; // Evitar que la imagen se encoja
+    border-radius: 6px;
+    overflow: hidden; // Para que el border-radius afecte a la imagen
+    background-color: #f0f0f0; // Color de fondo mientras carga o si no hay imagen
+  }
+
+  .modal-task-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; // Asegura que la imagen cubra el contenedor sin distorsionarse
+  }
+  
+  // Contenedor para el contenido textual
+  .modal-task-content {
+    flex-grow: 1; // El contenido textual toma el espacio restante
+    display: flex;
+    flex-direction: column;
   }
 
   h4 {
     font-size: 16px;
     font-weight: 600;
     color: var(--primary-color);
+    margin-top: 0; // Quitar margen superior si la imagen está al lado
     margin-bottom: 8px;
   }
   p {
@@ -155,6 +181,7 @@
     color: var(--text-muted);
     margin-bottom: 12px;
     line-height: 1.5;
+    flex-grow: 1; // Permite que el párrafo ocupe espacio disponible si es necesario
   }
 }
 
@@ -163,6 +190,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
+  margin-top: auto; // Empuja los metadatos al final si el párrafo no llena el espacio
 }
 
 .modal-task-category {

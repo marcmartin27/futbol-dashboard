@@ -416,7 +416,8 @@
 
 .tasks-detail-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  // grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); // Antes: múltiples columnas
+  grid-template-columns: 1fr; // Ahora: una sola columna
   gap: 20px;
 }
 
@@ -426,11 +427,17 @@
   border: 1px solid #edf2f7;
   border-radius: 8px;
   overflow: hidden;
+  // Podrías añadir un max-width si no quieres que se extienda demasiado en pantallas muy anchas
+  // max-width: 600px; 
+  // margin-left: auto;
+  // margin-right: auto;
 }
 
 .task-image {
-  width: 80px;
-  height: 80px;
+  // width: 80px; // Antes
+  // height: 80px; // Antes
+  width: 250px; // Nuevo tamaño más grande
+  height: 150px; // Nuevo tamaño más grande
   flex-shrink: 0;
 }
 
@@ -441,24 +448,28 @@
 }
 
 .task-detail-content {
-  padding: 12px;
+  padding: 15px; // Un poco más de padding
   flex-grow: 1;
+  display: flex; // Para mejor alineación vertical del contenido
+  flex-direction: column; // Para mejor alineación vertical del contenido
+  justify-content: center; // Para mejor alineación vertical del contenido
 }
 
 .task-detail-content h4 {
-  margin: 0 0 5px 0;
-  font-size: 15px;
+  margin: 0 0 8px 0; // Ajuste de margen
+  font-size: 16px; // Un poco más grande
   color: #2d3748;
 }
 
 .task-detail-content p {
-  margin: 0 0 10px 0;
-  font-size: 13px;
+  margin: 0 0 12px 0; // Ajuste de margen
+  font-size: 14px; // Un poco más grande
   color: #718096;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3; // Permitir un poco más de texto
   -webkit-box-orient: vertical;
   overflow: hidden;
+  line-height: 1.5; // Mejorar legibilidad
 }
 
 .task-detail-meta {
