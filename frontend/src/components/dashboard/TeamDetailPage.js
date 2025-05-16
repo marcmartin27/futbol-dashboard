@@ -48,6 +48,8 @@ function TeamDetailPage() {
     return groups;
   }, {});
 
+   const orderedPositions = ["POR", "LTD", "DEF", "LTI", "MCD", "MC", "MCO", "ED", "EI", "SD", "DEL"];
+
   // Modal handlers
   const handlePlayerClick = (player) => {
     setSelectedPlayer(player);
@@ -371,74 +373,79 @@ const handleDeletePlayer = async (playerId, e) => {
         {/* Contenido principal: lista de jugadores y campo de fútbol */}
         <div className="team-content">
           {/* Lista de jugadores - Lado izquierdo (65%) */}
-          <div className="roster-card">
-            <div className="card-header">
-              <h2>Plantilla ({players.length} jugadores)</h2>
+{/* Lista de jugadores */}
+      <div className="roster-card">
+        <div className="card-header">
+          <h2>Plantilla ({players.length} jugadores)</h2>
+        </div>
+        <div className="card-body">
+          {loading ? (
+            <div className="loading">
+              <i className="fas fa-spinner fa-spin"></i>
+              <span>Cargando jugadores...</span>
             </div>
-            <div className="card-body">
-              {loading ? (
-                <div className="loading">
-                  <i className="fas fa-spinner fa-spin"></i>
-                  <span>Cargando jugadores...</span>
-                </div>
-              ) : players.length === 0 ? (
-                <div className="empty-state">
-                  <div className="empty-state-icon">
-                    <i className="fas fa-users"></i>
-                  </div>
-                  <p className="empty-state-message">No hay jugadores en este equipo</p>
-                  <p>Añade jugadores utilizando el formulario de arriba</p>
-                </div>
-              ) : (
-                <div className="player-roster">
-                  {Object.keys(groupedPlayers).map(position => (
-                    <div key={position} className="position-group">
-                      <div className={`position-header position-${position}`}>
-                        <i className="fas fa-running"></i>
-                        {getPositionLabel(position)} ({groupedPlayers[position].length})
-                      </div>
-                      <div className="position-players">
-                        {groupedPlayers[position].map(player => (
-                          <div key={player.id || player._id} className="player-card" onClick={() => handlePlayerClick(player)}>
-                            <div className="player-number">{player.number}</div>
-                            <div className="player-position-tag">{position}</div>
-                            <div className="player-photo">
-                              {player.photo_url ? (
-                                <img 
-                                  src={player.photo_url} 
-                                  alt={`${player.name} ${player.last_name}`} 
-                                  onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.parentNode.innerHTML = '<i class="fas fa-user"></i>';
-                                  }}
-                                />
-                              ) : (
-                                <i className="fas fa-user"></i>
-                              )}
-                            </div>
-                            <div className="player-info">
-                              <div className="player-name">{player.name} {player.last_name}</div>
-                              <div className="player-details">
-                                <div className="player-age">{player.age} años</div>
-                                <div className="player-nationality">{player.nationality}</div>
-                              </div>
-                              <button
-                                className="delete-player"
-                                onClick={(e) => handleDeletePlayer(player.id || player._id, e)}
-                                title="Eliminar jugador"
-                              >
-                                <i className="fas fa-trash-alt"></i>
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+          ) : players.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <i className="fas fa-users"></i>
+              </div>
+              <p className="empty-state-message">No hay jugadores en este equipo</p>
+              <p>Añade jugadores utilizando el formulario de arriba</p>
+            </div>
+          ) : (
+            <div className="player-roster">
+              {orderedPositions.map(position => {
+                // Solo renderizamos si hay jugadores con esa posición
+                if (!groupedPlayers[position]) return null;
+                return (
+                  <div key={position} className="position-group">
+                    <div className={`position-header position-${position}`}>
+                      <i className="fas fa-running"></i>
+                      {getPositionLabel(position)} ({groupedPlayers[position].length})
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    <div className="position-players">
+                      {groupedPlayers[position].map(player => (
+                        <div key={player.id || player._id} className="player-card" onClick={() => handlePlayerClick(player)}>
+                          <div className="player-number">{player.number}</div>
+                          <div className="player-position-tag">{position}</div>
+                          <div className="player-photo">
+                            {player.photo_url ? (
+                              <img 
+                                src={player.photo_url} 
+                                alt={`${player.name} ${player.last_name}`} 
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.parentNode.innerHTML = '<i class="fas fa-user"></i>';
+                                }}
+                              />
+                            ) : (
+                              <i className="fas fa-user"></i>
+                            )}
+                          </div>
+                          <div className="player-info">
+                            <div className="player-name">{player.name} {player.last_name}</div>
+                            <div className="player-details">
+                              <div className="player-age">{player.age} años</div>
+                              <div className="player-nationality">{player.nationality}</div>
+                            </div>
+                            <button
+                              className="delete-player"
+                              onClick={(e) => handleDeletePlayer(player.id || player._id, e)}
+                              title="Eliminar jugador"
+                            >
+                              <i className="fas fa-trash-alt"></i>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
+        </div>
           
           {/* Campo de fútbol - Lado derecho (35%) */}
           <div className="football-field-container">
