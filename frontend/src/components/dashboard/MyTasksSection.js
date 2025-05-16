@@ -353,7 +353,10 @@ function TaskModal({ task, onClose, onTaskUpdated, onTaskDeleted }) {
       // Aquí deberías tener tu llamada real al servicio de eliminación
       // Ejemplo: await deleteTaskService(task.id);
       // Simulando la llamada:
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await fetch(`http://localhost:8000/api/tasks/${task.id || task._id}/`, {
+        method: 'DELETE',
+        headers: authHeader()
+      });
 
       onTaskDeleted(task.id || task._id); // Usa task.id o task._id según tu modelo
       onClose();
