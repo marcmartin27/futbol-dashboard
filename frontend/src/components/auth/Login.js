@@ -45,6 +45,7 @@ function Login() {
           
           setAuth(userData);
           navigate('/dashboard');
+          window.location.reload();
         } else {
           const errorData = await response.json();
           setError(errorData.error || "Credenciales inválidas");

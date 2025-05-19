@@ -11,6 +11,7 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/login');
+    window.location.reload();
   };
 
   const isAdmin = user && user.role === 'admin';
@@ -36,7 +37,6 @@ function Sidebar({ user, sidebarCollapsed, toggleSidebar, activePage, setActiveP
     { id: 'minutes', label: 'Minutos Jugados', icon: 'fa-running', roles: ['coach'] },
     
     // Común para todos al final
-    { id: 'settings', label: 'Configuración', icon: 'fa-cog', roles: ['admin', 'coach'] },
   ];
 
   const filteredMenuItems = menuItems.filter(item => item.roles.includes(user?.role));

@@ -296,12 +296,7 @@ const PlayerDetailModal = ({ player, onClose, onUpdate }) => {
         >
           <i className="fas fa-dumbbell"></i> Físico
         </button>
-        <button 
-          className={`tab-button ${activeTab === 'technical' ? 'active' : ''}`}
-          onClick={() => setActiveTab('technical')}
-        >
-          <i className="fas fa-futbol"></i> Técnica
-        </button>
+
       </div>
       
       <div className="player-detail-content">
@@ -374,89 +369,11 @@ const PlayerDetailModal = ({ player, onClose, onUpdate }) => {
               </>
             )}
             
-            <div className="physical-stats">
-              <div className="stat-item">
-                <div className="stat-value">
-                  <i className="fas fa-bolt"></i>
-                </div>
-                <div className="stat-label">Velocidad</div>
-                <div className="stat-bar">
-                  <div className="stat-fill" style={{width: `${Math.random() * 60 + 40}%`}}></div>
-                </div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">
-                  <i className="fas fa-running"></i>
-                </div>
-                <div className="stat-label">Resistencia</div>
-                <div className="stat-bar">
-                  <div className="stat-fill" style={{width: `${Math.random() * 60 + 40}%`}}></div>
-                </div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">
-                  <i className="fas fa-fist-raised"></i>
-                </div>
-                <div className="stat-label">Fuerza</div>
-                <div className="stat-bar">
-                  <div className="stat-fill" style={{width: `${Math.random() * 60 + 40}%`}}></div>
-                </div>
-              </div>
-            </div>
+
           </div>
         )}
         
-        {activeTab === 'technical' && (
-          <div className="player-detail-tab-content">
-            <div className="technical-stats">
-              <div className="stat-item">
-                <div className="stat-value">
-                  <i className="fas fa-futbol"></i>
-                </div>
-                <div className="stat-label">Control</div>
-                <div className="stat-bar">
-                  <div className="stat-fill" style={{width: `${Math.random() * 60 + 40}%`}}></div>
-                </div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">
-                  <i className="fas fa-arrows-alt"></i>
-                </div>
-                <div className="stat-label">Pases</div>
-                <div className="stat-bar">
-                  <div className="stat-fill" style={{width: `${Math.random() * 60 + 40}%`}}></div>
-                </div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">
-                  <i className="fas fa-bullseye"></i>
-                </div>
-                <div className="stat-label">Precisión</div>
-                <div className="stat-bar">
-                  <div className="stat-fill" style={{width: `${Math.random() * 60 + 40}%`}}></div>
-                </div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">
-                  <i className="fas fa-rocket"></i>
-                </div>
-                <div className="stat-label">Disparo</div>
-                <div className="stat-bar">
-                  <div className="stat-fill" style={{width: `${Math.random() * 60 + 40}%`}}></div>
-                </div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">
-                  <i className="fas fa-lightbulb"></i>
-                </div>
-                <div className="stat-label">Inteligencia</div>
-                <div className="stat-bar">
-                  <div className="stat-fill" style={{width: `${Math.random() * 60 + 40}%`}}></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+
       </div>
     </>
   );
