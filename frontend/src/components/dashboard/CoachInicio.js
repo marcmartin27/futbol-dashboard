@@ -284,7 +284,6 @@ function CoachInicio({ setActivePage }) {
         <StatCard icon="fa-users" title="Jugadores" value={playerCount} isLoading={loadingTeamInfo} color="blue" onClick={() => navigateTo('myteam')} />
         <StatCard icon="fa-tasks" title="Tareas Creadas" value={tasksCountForStatCard} isLoading={loadingTasksCountForStatCard} color="green" onClick={() => navigateTo('tasks')} />
         <StatCard icon="fa-calendar-check" title="Próximas Sesiones" value={upcomingSessionsCount} isLoading={loadingSessionsInfo} color="orange" onClick={() => navigateTo('sessions')} />
-        <StatCard icon="fa-user-check" title="Asistencia Media" value={`${avgAttendance}%`} isLoading={loadingAttendanceInfo} color="purple" onClick={() => navigateTo('attendance')} />
       </div>
 
       <div className="charts-section">

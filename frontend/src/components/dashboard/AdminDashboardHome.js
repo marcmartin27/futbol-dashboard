@@ -356,7 +356,6 @@ function AdminDashboardHome({ setActivePage }) {
             <Tooltip content={<CustomTooltip />} />
             <Legend wrapperStyle={{ color: CHART_COLORS.neutralDark }} />
             <Bar dataKey="Sesiones" barSize={20} fill={CHART_COLORS.primary} radius={[4, 4, 0, 0]} />
-            <Line type="monotone" dataKey="Tareas" stroke={CHART_COLORS.success} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
           </ComposedChart>
         </ChartWrapper>
 
