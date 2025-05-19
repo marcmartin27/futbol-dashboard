@@ -232,19 +232,10 @@ function CoachTeamSection({ setActivePage }) {
 
       <section className="main-content-grid-coach">
         <div className="key-actions-column">
-          <h2>Acciones Rápidas</h2>
+          <h2>Gestiona tu plantilla</h2>
           <div className="action-buttons-grid">
             <button className="btn btn-primary-gradient large-action" onClick={() => handleNavigate('team-management')}>
               <i className="fas fa-users-cog"></i> Gestionar Plantilla
-            </button>
-            <button className="btn btn-secondary-gradient large-action" onClick={() => handleNavigate('sessions')}>
-              <i className="fas fa-calendar-plus"></i> Planificar Sesión
-            </button>
-             <button className="btn btn-outline-gradient large-action" onClick={() => handleNavigate('tasks')}>
-              <i className="fas fa-clipboard-list"></i> Ver Mis Tareas
-            </button>
-            <button className="btn btn-outline-gradient large-action" onClick={() => handleNavigate('attendance')}>
-              <i className="fas fa-user-check"></i> Control Asistencia
             </button>
           </div>
 
